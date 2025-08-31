@@ -14,8 +14,10 @@ class ContainersPool{
         for(let i=0;i<this.size;i++){
             const name=`${this.language}_worker${i}`
             execSync(
-                `docker run -dit --name ${name} -v ${process.cwd()}/public:/usr/src/myapp -w /usr/src/myapp ${this.image} sleep infinity`
-            );
+            `docker run -dit --name ${name} \
+             -v ${process.cwd()}/public:/usr/src/myapp \
+             -w /usr/src/myapp ${this.image} sleep infinity`
+        );
             this.pool.push(name);
         }
     }
