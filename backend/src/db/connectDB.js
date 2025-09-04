@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
+import {DB} from "../constants.js"
 
-const MONGO_URI = process.env.MONGO_URI;
 const connectDB = async () => {
     try{
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
+        const conn = await mongoose.connect(`${process.env.MONGO_URI}/${DB}?retryWrites=true&w=majority&appName=Cluster0`, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });

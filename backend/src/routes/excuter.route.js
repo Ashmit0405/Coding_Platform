@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { run_code } from "../controllers/executer.controller.js";
 
-const router=Router();
+const runner_router=Router();
 
-router.post("/run",run_code);
+runner_router.post("/run",run_code);
 
-export {router};
+export {runner_router};
