@@ -10,6 +10,11 @@ const problemschema=new Schema({
         ref: "User",
         required: true,
     },
+    difficulty:{
+        type: String,
+        enum: ["Easy","Medium","Hard"],
+        default: "Easy"
+    },
     testcases:{
         type: String,
         required: true
@@ -18,17 +23,25 @@ const problemschema=new Schema({
         type: String,
         required: true
     },
+    accepted:{
+        type: Number,
+        default: 0
+    },
+    submissions:{
+        type: Number,
+        default: 0
+    },
     state:{
         type: String,
         enum: ["pending","accepted","rejected"],
         default: "pending"
     },
     input_lines:{
-        type: String,
+        type: Number,
         required: true
     },
     output_lines:{
-        type: String,
+        type: Number,
         required: true
     }
 },{

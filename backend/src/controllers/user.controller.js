@@ -3,7 +3,7 @@ import { User } from "../model/user.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadFile } from "../utils/fileUpload.js";
-
+import jwt from "jsonwebtoken"
 const generateAccessandRefreshToken=async(userId)=>{
     try {
         const user=await User.findById(userId);
@@ -122,4 +122,23 @@ const getUser=asyncHandler(async (req,res)=>{
     return res.status(200).json(new ApiResponse(200,user));
 })
 
-export {registration,login,changePassword,logout,changeProfile,updateDetails,getUser}
+const refreshAccessToken=asyncHandler(async (req,res)=>{
+    const token=req.cookies.refreshToken||req.body.refreshToken;
+    if(!token) return res.status(401).json(new ApiError(401,"Token Not Found"));
+    try {
+        const decoded=jwt.verify(token,process.env.REFRESH_TOKEN_SECRET);
+        const user=await User.findById(decoded?._id);
+        if(!user) return res.status(401).json(new ApiError(401,"User Not Found"));
+        if(token!==user.refreshToken) return res.status(401).json(new ApiError(401,"Invalid Token"));
+        const options={
+            httpOnly:true,
+            secure: true
+        };
+        const {accessToken,refreshToken}=generateAccessandRefreshToken(user._id);
+        return res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(new ApiResponse(200,{user:user,accessToken,refreshToken},"Token generated successfully"));
+    } catch (error) {
+        return res.json(401).json(new ApiError(401,"Error refreshing the access token"));
+    }
+})
+
+export {registration,login,changePassword,logout,changeProfile,updateDetails,getUser,refreshAccessToken}
