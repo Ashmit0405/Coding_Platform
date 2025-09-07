@@ -1,8 +1,10 @@
+import mongoose, { modelNames } from "mongoose";
 import { Problem } from "../model/problem.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import { uploadFile } from "../utils/fileUpload.js";
+import { Code } from "../model/code.model.js";
 
 const getallproblems=asyncHandler(async (req,res)=>{
     const problems=await Problem.find();
@@ -34,4 +36,43 @@ const submit_problem=asyncHandler(async (req,res)=>{
     return res.status(200).json(new ApiResponse(200,created,"Problem sent to admin successfully"));
 })
 
-export {getallproblems,submit_problem};
+const getproblem=asyncHandler(async (req,res)=>{
+    const {id}=req.params;
+    if(!mongoose.isValidObjectId(id)) return res.status(401).json(new ApiError(401,"Invalid id"));
+    const pro=await Problem.findById(id).select("-testcases -expected -state -input_lines -output_lines");
+    if(!pro) return res.status(401).json(new ApiError(401,"Problem not found"));
+    return res.status(200).json(new ApiResponse(200,pro,"Problem fetched successfully"));
+})
+
+const getsolutions=asyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    if(!mongoose.isValidObjectId(id)) return res.status(401).json(new ApiError(401,"Invalid Object Id"));
+
+    const ans=await Code.aggregate([
+        {
+            $match:{
+                problem_id: new mongoose.Types.ObjectId(id),
+                state: "Pending"
+            }
+        },
+        {
+            $project:{
+                _id: 0,
+                writer: 1,
+                code: 1,
+                createdAt: 1
+            }
+        },
+        {
+            $sort:{
+                createdAt: -1
+            }
+        }
+    ])
+
+    if(!ans) return res.status(400).json(new ApiError(400,"Error fetching the codes"));
+
+    return res.status(200).json(new ApiResponse(200,ans,"All accepted solutions fetched successfully"));
+})
+
+export {getallproblems,submit_problem,getproblem,getsolutions};

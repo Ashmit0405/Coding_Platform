@@ -4,6 +4,8 @@ import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadFile } from "../utils/fileUpload.js";
 import jwt from "jsonwebtoken"
+import { Code } from "../model/code.model.js";
+import mongoose from "mongoose";
 const generateAccessandRefreshToken=async(userId)=>{
     try {
         const user=await User.findById(userId);
@@ -118,8 +120,27 @@ const updateDetails=asyncHandler(async(req,res)=>{
 const getUser=asyncHandler(async (req,res)=>{
     const user_id=req.user?._id;
     if(!user_id) return res.status(401).json(new ApiError(401,"Error fetching the user"));
-    const user=await User.findById(user_id).select("-password -refreshToken");
-    return res.status(200).json(new ApiResponse(200,user));
+    const user=await User.findById(user_id).select("-password -role");
+    if(!user) return res.status(401).json(new ApiError(401,"Error fetching the user"))
+    const profile=await Code.aggregate([
+        {
+            $match:{
+                writer: new mongoose.Types.ObjectId(user_id),
+            }
+        },{
+            $project:{
+                problem_id: 1,
+                code: 1,
+                state: 1,
+                createdAt: 1,
+            }
+        },{
+            $sort:{
+                createdAt: -1
+            }
+        }
+    ])
+    return res.status(200).json(new ApiResponse(200,{user,"history":profile},"User Fetched Successfully"));
 })
 
 const refreshAccessToken=asyncHandler(async (req,res)=>{

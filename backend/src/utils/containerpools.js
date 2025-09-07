@@ -1,4 +1,4 @@
-import {execSync,exec} from "child_process"
+import {execSync} from "child_process"
 class ContainersPool{
     constructor(language,image,size=3){
         this.language=language;
