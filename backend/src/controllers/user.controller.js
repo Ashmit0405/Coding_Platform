@@ -117,7 +117,7 @@ const updateDetails=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,"Details Updated Successfully"));
 })
 
-const getUser=asyncHandler(async (req,res)=>{
+const getcurrUser=asyncHandler(async (req,res)=>{
     const user_id=req.user?._id;
     if(!user_id) return res.status(401).json(new ApiError(401,"Error fetching the user"));
     const user=await User.findById(user_id).select("-password -role");
@@ -162,4 +162,33 @@ const refreshAccessToken=asyncHandler(async (req,res)=>{
     }
 })
 
-export {registration,login,changePassword,logout,changeProfile,updateDetails,getUser,refreshAccessToken}
+const getotheruser=asyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    if(!id) return res.status(401).json(new ApiError(401,"Id not found"));
+    const user=await User.findById(id).select("-password -refreshToken -email -role");
+    if(!user) return res.status(401).json(new ApiError(401,"Error fetching the user"));
+    const profile=await Code.aggregate([
+        {
+            $match:{
+                writer: new mongoose.Types.ObjectId(id),
+            }
+        },
+        {
+            $project:{
+                problem_id: 1,
+                state: 1,
+                code: 1,
+                createdAt: 1
+            }
+        },
+        {
+            $sort:{
+                createdAt: -1
+            }
+        }
+    ])
+
+    return res.status(200).json(new ApiResponse(200,{user, history: profile},"User Fetched successfully"));
+})
+
+export {registration,login,changePassword,logout,changeProfile,updateDetails,getcurrUser,refreshAccessToken,getotheruser}
