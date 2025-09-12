@@ -1,26 +1,44 @@
 import mongoose, { Schema } from "mongoose";
 
-const codeschema=new Schema({
-    code:{
+const codeschema = new Schema({
+    code: {
         type: String,
         required: true,
         index: true
     },
     problem_id: {
         type: Schema.Types.ObjectId,
-        ref:"Problem",
-        required: true
+        ref: "Problem",
+        required: true,
+        index: true
     },
-    state:{
+    state: {
         type: String,
-        enum:["Accepted","Rejected","Pending"],
-        default: "Pending"
+        enum: [
+            "Pending",
+            "Running",
+            "Accepted",
+            "Wrong Answer",
+            "Compilation Error",
+            "Runtime Error",
+            "Time Limit Exceeded",
+            "Memory Limit Exceeded",
+            "System Error"
+        ],
+        default: "Pending",
+        index: true,
     },
-    writer:{
+    writer: {
         type: Schema.Types.ObjectId,
-        ref:"User",
+        ref: "User",
         required: true
-    }
+    },
+    fexec_time: { type: Number },   
+    memory: { type: Number }, 
+    createdAt: { type: Date, default: Date.now },
+    stdout: { type: String },        
+    stderr: { type: String },        
+   failed_cases: [{ type: String }],
 });
 
-export const Code= mongoose.model("Code",codeschema);
+export const Code = mongoose.model("Code", codeschema);

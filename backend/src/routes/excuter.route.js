@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { run_code } from "../controllers/executer.controller.js";
+import { run_code } from "../controllers/submission.controller.js";
 
 const runner_router=Router();
 
