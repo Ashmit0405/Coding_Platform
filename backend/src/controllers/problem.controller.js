@@ -13,7 +13,7 @@ const getallproblems=asyncHandler(async (req,res)=>{
 })
 
 const submit_problem=asyncHandler(async (req,res)=>{
-    const {problem,submitter,input_lines,output_lines}=req.body;
+    const {problem,submitter,input_lines,output_lines,time_limit,memory_limit}=req.body;
     console.log("BODY:", req.body);
     console.log("FILES:", req.files);
 
@@ -30,7 +30,7 @@ const submit_problem=asyncHandler(async (req,res)=>{
         return res.status(401).json(new ApiError(401,error.message||"Error sending the file"));
     }
     if(!testcases_path||!expected_path) return res.status(401).json(new ApiError(401,"Error uploading the files"));
-    const pro=await Problem.create({problem: problem,submiter: submitter,input_lines: input_lines,output_lines: output_lines,testcases: testcases_path,expected: expected_path});
+    const pro=await Problem.create({problem: problem,submiter: submitter,input_lines: input_lines,output_lines: output_lines,testcases: testcases_path,expected: expected_path, time_limit: time_limit, memory_limit: memory_limit});
     const created=await Problem.findById(pro._id).select("-input_lines -output_lines -testcases_path -expected_path");
     if(!created) return res.status(401).json(new ApiError(401,"Error saving the problem"));
     return res.status(200).json(new ApiResponse(200,created,"Problem sent to admin successfully"));
@@ -70,7 +70,7 @@ const getsolutions=asyncHandler(async(req,res)=>{
         }
     ])
 
-    if(!ans) return res.status(400).json(new ApiError(400,"Error fetching the codes"));
+    if(ans.length==0) return res.status(400).json(new ApiError(400,"Error fetching the codes"));
 
     return res.status(200).json(new ApiResponse(200,ans,"All accepted solutions fetched successfully"));
 })

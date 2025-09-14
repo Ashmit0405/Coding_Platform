@@ -44,7 +44,6 @@ const run_code = asyncHandler(async (req, res) => {
     const host = path.join(process.cwd(), "tmp", "problems", problem_id.toString());
     await fs.mkdir(host, { recursive: true });
 
-    // save code file on host
     const codeFilePath = path.join(host, file_name);
     await fs.writeFile(codeFilePath, code);
 
@@ -69,11 +68,24 @@ const run_code = asyncHandler(async (req, res) => {
 
 
         const cmd = getdoc_com(language, contCodeFile, sub_fold, contTestFile, contOutputFile);
-        const dockerCmd = `docker exec ${container} sh -c "timeout ${problem.time_limit}s ${cmd}"`;
+        const dockerCmd = `docker exec ${container} sh -c "/usr/bin/time -v timeout ${problem.time_limit}s ${cmd}"`;
         exec(dockerCmd, async (error, stdout, stderr) => {
             await fs.unlink(host).catch(() => { });
             await fs.unlink(testcasespath).catch(() => { });
             await fs.unlink(expectedpath).catch(() => { });
+            if (error && error.code === 124) {
+                newsol.state = "Time Limit Exceeded";
+                
+                return res.status(200).json(new ApiResponse(200, "TLE encountered"));
+            }
+            const output = stderr.toString().split("\n");
+            console.log(output)
+            const memLine = output.find(line => line.includes("Maximum resident set size (kbytes)"));
+            const memKb = parseInt(memLine.split(":")[1].trim(), 10);
+            const memMb = memKb / 1024;
+            if(memMb>problem.memory_limit){
+                return res.status(200).json(new ApiResponse(200,"Memory limit exceeded"));
+            }
             if (error && error.code !== 1) {
                 return res.status(500).json({ error: "some error" });
             }
@@ -83,7 +95,7 @@ const run_code = asyncHandler(async (req, res) => {
 
             if (resp.every(r => r.passed)) {
                 problem.submissions += 1;
-                problem.accepted+=1;
+                problem.accepted += 1;
                 await problem.save();
                 return res.status(200).json(new ApiResponse(200, "All cases passed"));
             } else {

@@ -43,6 +43,15 @@ const problemschema=new Schema({
     output_lines:{
         type: Number,
         required: true
+    },
+    time_limit:{
+        type: Number,
+        required: true,
+        default: 1
+    },
+    memory_limit:{
+        type: Number,
+        required: true
     }
 },{
     timestamps: true
