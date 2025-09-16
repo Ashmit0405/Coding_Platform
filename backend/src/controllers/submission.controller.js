@@ -29,8 +29,6 @@ const run_code = asyncHandler(async (req, res) => {
     const input_lines = problem.input_lines;
     const output_lines = problem.output_lines;
     const file_name = language === "java" ? getjavaname(code, extension) : `prog_${Date.now()}_${Math.floor(Math.random() * 10000)}_${newsol._id}.${extension}`;
-
-    // console.log(file_name)
     const pool = cons[language];
 
     if (!pool) {
@@ -73,37 +71,66 @@ const run_code = asyncHandler(async (req, res) => {
             await fs.unlink(host).catch(() => { });
             await fs.unlink(testcasespath).catch(() => { });
             await fs.unlink(expectedpath).catch(() => { });
+            newsol.stdout = stdout.toString();
+            newsol.stderr = stderr.toString();
+            newsol.fexec_time = 0;
+            newsol.memory = 0;
             if (error && error.code === 124) {
                 newsol.state = "Time Limit Exceeded";
-                
+                await newsol.save();
                 return res.status(200).json(new ApiResponse(200, "TLE encountered"));
             }
-            const output = stderr.toString().split("\n");
-            console.log(output)
-            const memLine = output.find(line => line.includes("Maximum resident set size (kbytes)"));
-            const memKb = parseInt(memLine.split(":")[1].trim(), 10);
-            const memMb = memKb / 1024;
-            if(memMb>problem.memory_limit){
-                return res.status(200).json(new ApiResponse(200,"Memory limit exceeded"));
-            }
-            if (error && error.code !== 1) {
-                return res.status(500).json({ error: "some error" });
+            try {
+                const lines = stderr.toString().split("\n");
+
+                const memLine = lines.find(l => l.includes("Maximum resident set size"));
+                if (memLine) {
+                    const memKb = parseInt(memLine.split(":")[1].trim(), 10);
+                    newsol.memory = memKb / 1024;
+                }
+
+                const usrTime = lines.find(l => l.includes("User time (seconds)"));
+                const sysTime = lines.find(l => l.includes("System time (seconds)"));
+                if (usrTime && sysTime) {
+                    const u = parseFloat(usrTime.split(":")[1].trim());
+                    const s = parseFloat(sysTime.split(":")[1].trim());
+                    newsol.fexec_time = Math.round((u + s) * 1000); 
+                }
+            } catch (err) {
+                console.warn("Could not parse time/memory usage");
             }
 
+            if (newsol.memory > problem.memory_limit) {
+                newsol.state = "Memory Limit Exceeded";
+                await newsol.save();
+                return res.status(200).json(new ApiResponse(200, "MLE encountered"));
+            }
+            if (error) {
+                newsol.state = "Runtime/Compilation Error";
+                await newsol.save();
+                return res.status(200).json(new ApiResponse(200, "Runtime/Compilation error"));
+            }
             const resp = await checkResults(container, problem_id, newsol._id, output_lines, input_lines);
             if (!resp) return res.status(400).json(new ApiError(400, "Error fetching the cases"));
 
+            problem.submissions += 1;
+            const failed=[];
             if (resp.every(r => r.passed)) {
-                problem.submissions += 1;
                 problem.accepted += 1;
                 await problem.save();
+                newsol.state = "Accepted";
+                newsol.failed_cases=failed;
+                await newsol.save();
                 return res.status(200).json(new ApiResponse(200, "All cases passed"));
             } else {
-                problem.submissions += 1;
                 await problem.save();
-                return res.status(200).json(new ApiResponse(200, { success: false, resp }));
+                newsol.state = "Wrong Answer"
+                newsol.failed_cases = resp.filter(r => !r.passed);
+                await newsol.save();
+                return res.status(200).json(new ApiResponse(200,resp.filter(r=>!r.passed),"Wrong Answer"));
             }
         });
+
     } catch (error) {
         return res.status(500).json(new ApiError(500, error.message || "Unknown error"));
     }

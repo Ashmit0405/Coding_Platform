@@ -1,6 +1,10 @@
 import mongoose,{Schema} from "mongoose";
 
 const problemschema=new Schema({
+    title:{
+        type: String,
+        required: true
+    },
     problem:{
         type: String,
         required: true

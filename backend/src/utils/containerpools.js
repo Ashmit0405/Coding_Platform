@@ -37,9 +37,9 @@ class ContainersPool{
     }
 }
 export const cons={
-    c: new ContainersPool("c","gcc:latest",3),
-    java: new ContainersPool("java","openjdk:latest",3),
-    python: new ContainersPool("python","python:3.11",3),
-    cpp: new ContainersPool("cpp","gcc:latest",3),
-    javascript: new ContainersPool("javascript","node:22",3)
+    c: new ContainersPool("c","gcc-gnu",3),
+    java: new ContainersPool("java","java-gnu",3),
+    python: new ContainersPool("python","py-gnu",3),
+    cpp: new ContainersPool("cpp","gcc-gnu",3),
+    javascript: new ContainersPool("javascript","js-gnu",3)
 };

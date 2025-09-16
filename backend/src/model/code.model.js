@@ -16,11 +16,9 @@ const codeschema = new Schema({
         type: String,
         enum: [
             "Pending",
-            "Running",
             "Accepted",
             "Wrong Answer",
-            "Compilation Error",
-            "Runtime Error",
+            "Runtime/Compilation error",
             "Time Limit Exceeded",
             "Memory Limit Exceeded",
             "System Error"
@@ -33,12 +31,19 @@ const codeschema = new Schema({
         ref: "User",
         required: true
     },
-    fexec_time: { type: Number },   
-    memory: { type: Number }, 
-    createdAt: { type: Date, default: Date.now },
-    stdout: { type: String },        
-    stderr: { type: String },        
-   failed_cases: [{ type: String }],
+    fexec_time: { type: Number },
+    memory: { type: Number },
+    stdout: { type: String },
+    stderr: { type: String },
+    failed_cases: [{
+        case: { type: Number },
+        passed: { type: Boolean },
+        input: [{ type: String }],
+        expected: [{ type: String }],
+        got: [{ type: String }]
+    }],
+}, {
+    timestamps: true
 });
 
 export const Code = mongoose.model("Code", codeschema);
