@@ -1,5 +1,5 @@
-import { ApiError } from "../utils/apiError";
-import { asyncHandler } from "../utils/asynchandler";
+import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asynchandler.js";
 
 const check_ps=asyncHandler(async (req,res,next)=>{
     const user=req.user;

@@ -8,7 +8,7 @@ const getdashboard = asyncHandler(async (req, res) => {
     const problems = await Problem.aggregate([
         {
             $match: {
-                state: "Pending"
+                state: "pending"
             }
         },
         {
@@ -26,7 +26,7 @@ const getdashboard = asyncHandler(async (req, res) => {
         }
     ]);
 
-    if (problems.length == 0) res.status(401).json(new ApiError(401, "Error fetching the pending problems"));
+    if (problems.length == 0) return res.status(401).json(new ApiError(401, "Error fetching the pending problems"));
     return res.status(200).json(new ApiResponse(200, problems, "Pending problems fetched successfully"))
 })
 

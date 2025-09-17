@@ -191,4 +191,34 @@ const getotheruser=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,{user, history: profile},"User Fetched successfully"));
 })
 
-export {registration,login,changePassword,logout,changeProfile,updateDetails,getcurrUser,refreshAccessToken,getotheruser}
+const getuser_logs=asyncHandler(async(req,res)=>{
+    const {problem_id}=req.params;
+    const user_id=req.user?._id;
+    if(!problem_id||!user_id) return res.status(400).json(new ApiError(400,"Problem or user id not found"));
+    const codes=await Code.aggregate([
+        {
+            $match:{
+                writer: new mongoose.Types.ObjectId(user_id),
+                problem_id: new mongoose.Types.ObjectId(problem_id)
+            }
+        },{
+            $project:{
+                state:1,
+                failed_cases:1,
+                passed:1,
+                code: 1,
+                fexec_time:1,
+                memory:1,
+                createdAt:1
+            }
+        },{
+            $sort:{
+                createdAt:-1
+            }
+        }
+    ]);
+    if(codes.length==0) return res.status(200).json(new ApiResponse(200,"No logs found"));
+    return res.status(200).json(new ApiResponse(200,codes,"Logs fetched successfully"));
+})
+
+export {registration,login,changePassword,logout,changeProfile,updateDetails,getcurrUser,refreshAccessToken,getotheruser,getuser_logs};
