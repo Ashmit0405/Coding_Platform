@@ -1,4 +1,4 @@
-import mongoose, { modelNames } from "mongoose";
+import mongoose from "mongoose";
 import { Problem } from "../model/problem.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
@@ -75,4 +75,66 @@ const getsolutions=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,ans,"All accepted solutions fetched successfully"));
 })
 
-export {getallproblems,submit_problem,getproblem,getsolutions};
+const prob_sort=asyncHandler(async(req,res)=>{
+    const {basis,order}=req.body;
+    const sortOrder = order === "asc" ? 1 : -1;
+    let probs;
+    if(basis==="difficulty"){
+        probs = await Problem.aggregate([
+            {
+                $addFields: {
+                    difficultyOrder: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ["$difficulty", "Easy"] }, then: 1 },
+                                { case: { $eq: ["$difficulty", "Medium"] }, then: 2 },
+                                { case: { $eq: ["$difficulty", "Hard"] }, then: 3 }
+                            ],
+                            default: 4
+                        }
+                    }
+                }
+            },
+            { $sort: { difficultyOrder: sortOrder } }
+        ]);
+
+        if(probs.length==0) return res.status(404).json(new ApiError(404,"Problems not found"));
+    }
+    else if(basis==="acceptance"){
+        probs=await Problem.aggregate([
+            {
+                $addFields:{
+                    acceptance_rate:{
+                        $cond:{
+                            if: {$eq: ["$submissions",0]},
+                            then: 0,
+                            else: {$divide:["$accepted","$submissions"]}
+                        }
+                    }
+                }
+            },
+            {
+                $sort:{
+                    acceptance_rate: sortOrder
+                }
+            }
+        ])
+        if(probs.length==0) return res.status(404).json(new ApiError(404,"Problems not found"));
+    }
+    return res.status(200).json(new ApiResponse(200,probs,"Problems sorted successfully"));
+})
+
+const search_prob=asyncHandler(async(req,res)=>{
+    const {query}=req.body;
+    const probs=await Problem.find({
+        $or:[
+            {title:{$regex:query,$options:"i"}},
+            {problem:{$regex:query,$options:"i"}},
+        ]
+    })
+
+    if(probs.length==0) return res.status(404).json(new ApiResponse(404,null,"No Problem Found"));
+    return res.status(200).json(new ApiResponse(200,probs,"Problem searched successfully"));
+})
+
+export {getallproblems,submit_problem,getproblem,getsolutions,prob_sort,search_prob};
