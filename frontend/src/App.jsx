@@ -1,12 +1,36 @@
-import { useState } from 'react'
-import Register from "./pages/Register.jsx"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 
-  return (
-    <Register />
-  )
+function ProtectedRoute({ children }) {
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
 }
 
-export default App
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

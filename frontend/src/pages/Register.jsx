@@ -1,96 +1,119 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
+import { Button } from "@/components/ui/button.jsx";
+import { Input } from "@/components/ui/input.jsx";
+import { Link } from "react-router-dom";
 
-const Register = () => {
-    const [form, setForm] = useState({
-        username: "",
-        email: "",
-        fullname: "",
-        profilePhoto: "",
-        password: "",
-        role: "user"
+export default function Register() {
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    fullname: "",
+    password: "",
+    profilePhoto: "",
+    role: "user"
+  });
+  const [msg, setMsg] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      formData.append(key, form[key]);
     });
-    const [msg, setMsg] = useState("");
 
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
+    try {
+      const res = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        body: formData,
+      });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await axios.post("http://localhost:8000/api/register", form);
-            setMsg(res.data.message || "User registered successfully!");
-        } catch (err) {
-            setMsg(err.response?.data?.message || "Error registering user");
-        }
-    };
+      const data = await res.json();
 
-    return (
-        <div className="bg-red-300">
-            <form
-                onSubmit={handleSubmit}
-            >
-                <h2 className="text-2xl font-bold text-center">Register</h2>
+      if(data.statusCode==200){
+        setMsg(data.message || "Registered successfully!");
+        navigate("/login");
+      }
+    } catch (err) {
+      setMsg("Something went wrong.");
+    }
+  };
 
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Username"
-                    value={form.username}
-                    onChange={handleChange}
-                    className="w-2 border p-2 rounded"
-                    required
-                />
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-200">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md"
+      >
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Create Account
+        </h2>
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                    className="w-full border p-2 rounded"
-                    required
-                />
+        <Input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+          className="mb-4"
+          required
+        />
 
-                <input
-                    type="text"
-                    name="fullname"
-                    placeholder="Full Name (optional)"
-                    value={form.fullname}
-                    onChange={handleChange}
-                    className="w-full border p-2 rounded"
-                />
+        <Input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          className="mb-4"
+          required
+        />
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={handleChange}
-                    className="w-full border p-2 rounded"
-                    required
-                />
-                
-                <input
-                    type="file"
-                    name="profilePhoto"
-                    accept="image/*"
-                    onChange={(e) => setForm({ ...form, profilePhoto: e.target.files[0] })}
-                    className="w-full border p-2 rounded"
-                />
+        <Input
+          type="text"
+          name="fullname"
+          placeholder="FullName"
+          value={form.fullname}
+          onChange={handleChange}
+          className="mb-4"
+          required
+        />
 
-                <button
-                    type="submit"
-                    className="bg-blue-600 text-white py-2 rounded hover:bg-black"
-                >
-                    Register
-                </button>
+        <Input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          className="mb-4"
+          required
+        />
+        <Input
+          type="file"
+          name="profilePhoto"
+          accept="image/*"
+          onChange={(e) =>
+            setForm({ ...form, profilePhoto: e.target.files[0] })
+          }
+          className="mb-4 py-2"
+        />
+        
 
-                {msg && <p className="text-sm text-center text-gray-600">{msg}</p>}
-            </form>
-        </div>
-    );
-};
+        <Button type="submit" className="w-full">Register</Button>
 
-export default Register;
+        {msg && (
+          <p className="text-sm text-center text-gray-600 mt-4">{msg}</p>
+        )}
+        <p className="text-sm text-center text-gray-600 mt-6">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Log in
+          </Link>
+        </p>
+      </form>
+    </div>
+  );
+}
