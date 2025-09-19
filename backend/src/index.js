@@ -4,16 +4,16 @@ import { image_build } from "./utils/imageBuild.js";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js"
 
-try {
-    image_build();
-} catch (error) {
-    throw error;
-}
+// try {
+//     image_build();
+// } catch (error) {
+//     throw error;
+// }
 
-for(const pool of Object.values(cons)){
-    pool.init()
-    console.log(`Pool of language ${pool.language}`);
-}
+// for(const pool of Object.values(cons)){
+//     pool.init()
+//     console.log(`Pool of language ${pool.language}`);
+// }
 
 dotenv.config();
 
