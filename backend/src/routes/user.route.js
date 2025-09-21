@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changePassword, changeProfile, getcurrUser, getotheruser, getuser_logs, login, logout, refreshAccessToken, registration } from "../controllers/user.controller.js";
+import { changePassword, changeProfile, codeprofile, getcurrUser, getotheruser, getuser_logs, login, logout, refreshAccessToken, registration } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 const userroute=Router();
@@ -19,5 +19,6 @@ userroute.route("/get-curr-user").get(verifyJWT,getcurrUser);
 userroute.route("/refresh-access").post(refreshAccessToken);
 userroute.route("/get/:id").get(getotheruser);
 userroute.route("/get-logs/:problem_id").get(verifyJWT,getuser_logs);
+userroute.route("/get-coding-profile").get(verifyJWT,codeprofile)
 
 export {userroute}

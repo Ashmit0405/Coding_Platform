@@ -7,7 +7,7 @@ import { uploadFile } from "../utils/fileUpload.js";
 import { Code } from "../model/code.model.js";
 
 const getallproblems=asyncHandler(async (req,res)=>{
-    const problems=await Problem.find();
+    const problems=await Problem.find().select("-testcases -expected -input_lines -output_lines -state");
     if(!problems) return res.status(401).json(new ApiError(401,"No Problems Found"));
     return res.status(200).json(new ApiResponse(200,problems,"Problems Fetched Successufully"));
 })

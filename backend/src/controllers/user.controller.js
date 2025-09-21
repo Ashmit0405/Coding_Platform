@@ -93,14 +93,6 @@ const logout = asyncHandler(async (req, res) => {
     res.status(200).clearCookie("accessToken", options).clearCookie("refreshToken", options).json(new ApiResponse(200, "Logged Out Successfully"));
 })
 
-const getuser=asyncHandler(async (req,res)=>{
-    const id=req.user?._id;
-    if(!id) return res.status(400).json(new ApiError(400,"User Not in request"));
-    const user=await User.findById(id);
-    if(!user) return res.status(400).json(new ApiError(400,"User Not Found"));
-    return res.status(200).json(new ApiResponse(200,user,"User Fetched Successfully"));
-})
-
 const changeProfile = asyncHandler(async (req, res) => {
     const coverImage_path = req.files?.path;
     if (!coverImage_path) return res.status(401).json(new ApiError(401, "Profile Changed"));
@@ -131,10 +123,16 @@ const getcurrUser = asyncHandler(async (req, res) => {
     if (!user_id) return res.status(401).json(new ApiError(401, "Error fetching the user"));
     const user = await User.findById(user_id).select("-password -role");
     if (!user) return res.status(401).json(new ApiError(401, "Error fetching the user"))
+    return res.status(200).json(new ApiResponse(200,user, "User Fetched Successfully"));
+})
+
+const codeprofile=asyncHandler(async (req,res)=>{
+    const id=req.user?._id;
+    if(!id) return res.status(400).json(new ApiError(400,"Id Not Found"));
     const profile = await Code.aggregate([
         {
             $match: {
-                writer: new mongoose.Types.ObjectId(user_id),
+                writer: new mongoose.Types.ObjectId(id),
             }
         }, {
             $project: {
@@ -149,27 +147,42 @@ const getcurrUser = asyncHandler(async (req, res) => {
             }
         }
     ])
-    return res.status(200).json(new ApiResponse(200, { user, "history": profile }, "User Fetched Successfully"));
+    return res.status(200).json(new ApiResponse(200,profile,"Coding History Fetched Successfully"));
 })
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const token = req.cookies.refreshToken || req.body.refreshToken;
-    if (!token) return res.status(401).json(new ApiError(401, "Token Not Found"));
-    try {
-        const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-        const user = await User.findById(decoded?._id);
-        if (!user) return res.status(401).json(new ApiError(401, "User Not Found"));
-        if (token !== user.refreshToken) return res.status(401).json(new ApiError(401, "Invalid Token"));
-        const options = {
-            httpOnly: true,
-            secure: true
-        };
-        const { accessToken, refreshToken } = generateAccessandRefreshToken(user._id);
-        return res.status(200).cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options).json(new ApiResponse(200, { user: user, accessToken, refreshToken }, "Token generated successfully"));
-    } catch (error) {
-        return res.json(401).json(new ApiError(401, "Error refreshing the access token"));
+  const token = req.cookies.refreshToken || req.body.refreshToken;
+  if (!token) return res.status(401).json(new ApiError(401, "Token Not Found"));
+
+  try {
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decoded?._id);
+    if (!user) return res.status(401).json(new ApiError(401, "User Not Found"));
+
+    if (token !== user.refreshToken) {
+      return res.status(401).json(new ApiError(401, "Invalid Token"));
     }
-})
+
+    const { accessToken, refreshToken } = await generateAccessandRefreshToken(user._id);
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+
+    return res
+      .status(200)
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .json(new ApiResponse(200, { user, accessToken }, "Access token refreshed successfully"));
+  } catch (error) {
+    return res.status(401).json(new ApiError(401, "Error refreshing the access token"));
+  }
+});
+
 
 const getotheruser = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -230,4 +243,4 @@ const getuser_logs = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, codes, "Logs fetched successfully"));
 })
 
-export { registration, login, changePassword, logout, changeProfile, updateDetails, getcurrUser, refreshAccessToken, getotheruser, getuser_logs, getuser };
+export { registration, login, changePassword, logout, changeProfile, updateDetails, getcurrUser, refreshAccessToken, getotheruser, getuser_logs, codeprofile };
