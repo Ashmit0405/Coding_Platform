@@ -5,6 +5,9 @@ import { AuthContext } from "./context/AuthContext.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import Profile from "./pages/Profile.jsx";
+import ProblemPage from "./pages/Problem.jsx";
+import SubmitProblem from "./pages/Submit_Problem.jsx";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -26,8 +29,32 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route
+          path="/problems/:id"
+          element={
+            <ProtectedRoute>
+              <ProblemPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/submit-problem"
+          element={
+            <ProtectedRoute>
+              <SubmitProblem/>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

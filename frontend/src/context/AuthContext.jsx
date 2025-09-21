@@ -1,38 +1,34 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback } from "react";
 
 export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem("accessToken");
-    if (savedToken) {
-      setToken(savedToken);
-      fetchUser(savedToken);
-    } else {
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/refresh-access", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("No active session");
+      const data = await res.json();
+      setAccessToken(data.data.accessToken);
+      setUser(data.data.user);
+    } catch (err) {
+      console.log("No active session:", err);
+      setUser(null);
+      setAccessToken(null);
+    } finally {
       setLoading(false);
     }
   }, []);
 
-  const fetchUser = async (jwt) => {
-    try {
-      const res = await fetch("http://localhost:5000/api/me", {
-        headers: { Authorization: `Bearer ${jwt}` },
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch user");
-      const data = await res.json();
-      setUser(data.user);
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -42,40 +38,36 @@ export default function AuthProvider({ children }) {
         body: JSON.stringify({ email, password }),
         credentials: "include",
       });
-
       const data = await res.json();
-      console.log(data)
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      if (!res.ok) throw new Error(data.data.message || "Login failed");
 
-      localStorage.setItem("accessToken", data.data.accessToken);
-      setToken(data.data.accessToken);
+      setAccessToken(data.data.accessToken);
       setUser(data.data.user);
       return true;
     } catch (err) {
-      console.error(err);
+      console.error("Login error:", err);
       return false;
     }
   };
 
   const logout = async () => {
-    localStorage.removeItem("accessToken");
     try {
-        const res=await fetch("http://localhost:5000/api/logout",{
-            method: "POST",
-            credentials: "include"
-        });
-        const data=await res.json();
-        if(!res.ok) throw new Error(data.message||"LogOut Failed");
-        setToken(null);
-        setUser(null);
-        
-    } catch (error) {
-        console.log(error);
+      await fetch("http://localhost:5000/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setUser(null);
+      setAccessToken(null);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, login, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

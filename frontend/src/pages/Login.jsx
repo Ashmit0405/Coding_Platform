@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
-import { useNavigate, Link,Navigate } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input.jsx";
 import { Button } from "@/components/ui/button.jsx";
 
@@ -8,17 +8,19 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [msg,setmsg]=useState("");
   const navigate = useNavigate();
   const { user, login } = useContext(AuthContext);
 
-  if(user){
+  if (user) {
+    console.log(user);
+    
     return <Navigate to="/" replace />;
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await login(email, password);
+    console.log(success)
     if (success) {
       navigate("/");
     } else {
@@ -41,7 +43,7 @@ export default function Login() {
           name="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}          
+          onChange={(e) => setEmail(e.target.value)}
           className="mb-4"
           required
         />
@@ -51,20 +53,20 @@ export default function Login() {
           name="password"
           placeholder="Password"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           className="mb-4"
           required
         />
 
         <Button type="submit" className="w-full">Log-In</Button>
-         {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
         <p className="text-sm text-center text-gray-600 mt-6">
           No Account?{" "}
           <Link to="/register" className="text-blue-600 hover:underline">
             Register
           </Link>
         </p>
-        {msg && <p className="text-sm text-center text-gray-600 mt-4">{msg}</p>}
       </form>
     </div>
   );
