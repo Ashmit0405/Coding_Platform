@@ -12,14 +12,6 @@ const getdashboard = asyncHandler(async (req, res) => {
             }
         },
         {
-            $project: {
-                _id: 0,
-                problem: 1,
-                submiter: 1,
-                createdAt: 1
-            }
-        },
-        {
             $sort: {
                 createdAt: -1
             }
@@ -55,9 +47,9 @@ const getallusers=asyncHandler(async(req,res)=>{
 })
 
 const remove_acc=asyncHandler(async(req,res)=>{
-    const {user_id}=req.params;
-    if(!user_id) return res.status(404).json(new ApiError(404,"Id not found"));
-    const user=await User.findByIdAndDelete(user_id);
+    const {id}=req.params;
+    if(!id) return res.status(404).json(new ApiError(404,"Id not found"));
+    const user=await User.findByIdAndDelete(id);
     if(!user) return res.status(404).json(new ApiResponse(404,"Error removing the user"));
     return res.status(200).json(new ApiResponse(200,user,"User removed successfully"));
 })
