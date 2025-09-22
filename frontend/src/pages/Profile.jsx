@@ -32,7 +32,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-6 w-full mx-auto space-y-6">
       {/* User Info */}
       <Navbar/>
       <div className="bg-white shadow-md rounded-lg p-6">

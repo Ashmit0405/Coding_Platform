@@ -8,6 +8,8 @@ import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import ProblemPage from "./pages/Problem.jsx";
 import SubmitProblem from "./pages/Submit_Problem.jsx";
+import ReviewProblems from "./pages/Review_Problem.jsx";
+import ManageUsers from "./pages/Users.jsx"
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -52,6 +54,22 @@ function App() {
           element={
             <ProtectedRoute>
               <SubmitProblem/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/review-problem"
+          element={
+            <ProtectedRoute>
+              <ReviewProblems/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/all-users"
+          element={
+            <ProtectedRoute>
+              <ManageUsers/>
             </ProtectedRoute>
           }
         />

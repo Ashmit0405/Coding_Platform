@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -13,6 +13,7 @@ export default function Register() {
     role: "user"
   });
   const [msg, setMsg] = useState("");
+  const navigate=useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,10 +32,10 @@ export default function Register() {
         body: formData,
       });
 
-      const data = await res.json();
-
-      if(data.statusCode==200){
-        setMsg(data.message || "Registered successfully!");
+      const resp = await res.json();
+      console.log(resp)
+      if(resp.statusCode==200){
+        setMsg(resp.message || "Registered successfully!");
         navigate("/login");
       }
     } catch (err) {
