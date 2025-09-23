@@ -50,7 +50,6 @@ export default function ProblemPage() {
       <h1 className="text-3xl font-bold mb-6">{problem.title}</h1>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left column: problem info */}
         <div className="flex-1 space-y-4">
           <p className="text-gray-700 whitespace-pre-line">{problem.problem}</p>
 
@@ -70,7 +69,6 @@ export default function ProblemPage() {
           </div>
         </div>
 
-        {/* Right column: editor */}
         <form onSubmit={handleSubmit(onSubmit)}>
         {/* <Texteditor name="Content" control={control} label="Your Solution" /> */}
         <button

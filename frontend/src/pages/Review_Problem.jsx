@@ -2,11 +2,11 @@ import { useEffect, useState, useContext } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/navbar";
-import { AuthContext } from "@/context/AuthContext.jsx"; // adjust path
+import { AuthContext } from "@/context/AuthContext.jsx"; 
 
 export default function ReviewProblems() {
   const [problems, setProblems] = useState([]);
-  const { user } = useContext(AuthContext); // logged-in user
+  const { user } = useContext(AuthContext); 
 
   useEffect(() => {
     fetch("http://localhost:5000/api/get-dashboard", {
@@ -50,7 +50,7 @@ export default function ReviewProblems() {
         <h1>No Pending Problems</h1>
       ) : (
         problems
-          .filter((p) => p.submiter !== user?._id) // exclude problems submitted by current user
+          .filter((p) => p.submiter !== user?._id) 
           .map((problem) => (
             <Card key={problem._id} className="rounded-2xl shadow-md">
               <CardContent className="p-4">
@@ -64,7 +64,6 @@ export default function ReviewProblems() {
                   <span>⏱️ Time: {problem.time_limit}s</span>
                 </div>
 
-                {/* Download buttons */}
                 <div className="flex gap-3 mt-4">
                   <a
                     href={`${problem.testcases}?fl_attachment:testcases.txt`}
@@ -86,7 +85,6 @@ export default function ReviewProblems() {
                   </a>
                 </div>
 
-                {/* Review buttons */}
                 <div className="flex gap-3 mt-4">
                   <Button
                     className="bg-green-600 hover:bg-green-700 hover:cursor-pointer"

@@ -10,10 +10,10 @@ import ProblemPage from "./pages/Problem.jsx";
 import SubmitProblem from "./pages/Submit_Problem.jsx";
 import ReviewProblems from "./pages/Review_Problem.jsx";
 import ManageUsers from "./pages/Users.jsx"
+import UserProfile from "./pages/Other.jsx";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
-
   if (loading) return <p>Loading...</p>;
   if (!user) return <Navigate to="/login" replace />;
   return children;
@@ -70,6 +70,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ManageUsers/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/:id"
+          element={
+            <ProtectedRoute>
+              <UserProfile/>
             </ProtectedRoute>
           }
         />
