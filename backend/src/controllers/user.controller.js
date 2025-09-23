@@ -94,7 +94,7 @@ const logout = asyncHandler(async (req, res) => {
 })
 
 const changeProfile = asyncHandler(async (req, res) => {
-    const coverImage_path = req.files?.path;
+    const coverImage_path = req.files?.coverImage_path?.[0]?.path || "";;
     if (!coverImage_path) return res.status(401).json(new ApiError(401, "Profile Changed"));
     const image_path = await uploadFile(coverImage_path);
     if (!image_path) return res.status(401).json(new ApiError(401, "Error uploading image"));
@@ -108,6 +108,7 @@ const changeProfile = asyncHandler(async (req, res) => {
 const updateDetails = asyncHandler(async (req, res) => {
     const user_id = req.user?._id;
     const { username, email, fullname } = req.body;
+    if(!username&&!email&&!fullname) return res.status(301).json(new ApiError(301,"No data to change"))
     const user = await User.findById(user_id);
     if (username) user.username = username;
     if (email) user.email = email;
@@ -183,11 +184,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-
 const getotheruser = asyncHandler(async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(401).json(new ApiError(401, "Id not found"));
-    const user = await User.findById(id).select("-password -refreshToken -email -role");
+    const user = await User.findById(id).select("-password -refreshToken -role");
     if (!user) return res.status(401).json(new ApiError(401, "Error fetching the user"));
     const profile = await Code.aggregate([
         {
