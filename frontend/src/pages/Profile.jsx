@@ -25,7 +25,8 @@ export default function Profile() {
           credentials: "include",
         });
         const data = await res.json();
-        setProblems(data.problems || []);
+        console.log(data)
+        setProblems(data.data || []);
       } catch (err) {
         console.error(err);
       } finally {
