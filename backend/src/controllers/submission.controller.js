@@ -11,6 +11,7 @@ import path from "path";
 
 const run_code = asyncHandler(async (req, res) => {
     const { language, code, problem_id, writer } = req.body;
+    console.log(req.body)
     if (!code || !problem_id || !writer) return res.status(400).json(new ApiError(400, "All Fields must be filled"));
     const newsol = await Code.create({
         code: code,
@@ -66,7 +67,8 @@ const run_code = asyncHandler(async (req, res) => {
 
 
         const cmd = getdoc_com(language, contCodeFile, sub_fold, contTestFile, contOutputFile);
-        const dockerCmd = `docker exec ${container} sh -c "/usr/bin/time -v timeout ${problem.time_limit}s ${cmd}"`;
+        const dockerCmd = `docker exec ${container} sh -c "/usr/bin/time -v timeout ${problem.time_limit+1}s ${cmd}"`;
+        console.log(dockerCmd)
         exec(dockerCmd, async (error, stdout, stderr) => {
             await fs.unlink(host).catch(() => { });
             await fs.unlink(testcasespath).catch(() => { });
@@ -94,7 +96,7 @@ const run_code = asyncHandler(async (req, res) => {
                 if (usrTime && sysTime) {
                     const u = parseFloat(usrTime.split(":")[1].trim());
                     const s = parseFloat(sysTime.split(":")[1].trim());
-                    newsol.fexec_time = Math.round((u + s) * 1000); 
+                    newsol.fexec_time = Math.round((u + s) * 1000);
                 }
             } catch (err) {
                 console.warn("Could not parse time/memory usage");
@@ -106,7 +108,7 @@ const run_code = asyncHandler(async (req, res) => {
                 return res.status(200).json(new ApiResponse(200, "MLE encountered"));
             }
             if (error) {
-                newsol.state = "Runtime/Compilation Error";
+                newsol.state = "Runtime/Compilation error";
                 await newsol.save();
                 return res.status(200).json(new ApiResponse(200, "Runtime/Compilation error"));
             }
@@ -114,12 +116,12 @@ const run_code = asyncHandler(async (req, res) => {
             if (!resp) return res.status(400).json(new ApiError(400, "Error fetching the cases"));
 
             problem.submissions += 1;
-            const failed=[];
+            const failed = [];
             if (resp.every(r => r.passed)) {
                 problem.accepted += 1;
                 await problem.save();
                 newsol.state = "Accepted";
-                newsol.failed_cases=failed;
+                newsol.failed_cases = failed;
                 await newsol.save();
                 return res.status(200).json(new ApiResponse(200, "All cases passed"));
             } else {
@@ -127,7 +129,7 @@ const run_code = asyncHandler(async (req, res) => {
                 newsol.state = "Wrong Answer"
                 newsol.failed_cases = resp.filter(r => !r.passed);
                 await newsol.save();
-                return res.status(200).json(new ApiResponse(200,resp.filter(r=>!r.passed),"Wrong Answer"));
+                return res.status(200).json(new ApiResponse(200, resp.filter(r => !r.passed), "Wrong Answer"));
             }
         });
 
@@ -153,11 +155,14 @@ const getdoc_com = (language, codeFile, sub_fold, inputFile, outputFile) => {
 
     switch (language) {
         case "c":
-            return `gcc ${codeFile} -o ${execFile} && cat ${inputFile} | ${execFile} > ${outputFile}`;
+            return `gcc ${codeFile} -o ${execFile} && chmod +x ${execFile} && ${execFile} < ${inputFile} > ${outputFile}`;
+
         case "cpp":
-            return `g++ ${codeFile} -o ${execFile} && cat ${inputFile} | ${execFile} > ${outputFile}`;
+            return `g++ ${codeFile} -o ${execFile} -O2 -std=c++17 && chmod +x ${execFile} && ${execFile} < ${inputFile} > ${outputFile}`;
+
         case "java": {
             const classname = codeFile.split("/").pop().replace(".java", "");
+            console.log(classname)
             return `javac ${codeFile} && cat ${inputFile} | java -cp ${sub_fold} ${classname} > ${outputFile}`;
         }
         case "python":

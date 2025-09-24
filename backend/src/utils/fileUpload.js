@@ -18,10 +18,10 @@ const uploadFile=async(localpath)=>{
             resource_type:"auto",
         });
         console.log("File Uploaded to :",upload.url)
-        // fs.unlinkSync(localpath)
+        fs.unlinkSync(localpath)
         return upload.secure_url;
     } catch (error) {
-        // if (fs.existsSync(localpath)) fs.unlinkSync(localpath);
+        if (fs.existsSync(localpath)) fs.unlinkSync(localpath);
         throw new Error(error.message || "Cloudinary upload failed");
     }
 }

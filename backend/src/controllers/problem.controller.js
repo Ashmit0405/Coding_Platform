@@ -53,7 +53,7 @@ const getsolutions = asyncHandler(async (req, res) => {
         {
             $match: {
                 problem_id: new mongoose.Types.ObjectId(id),
-                state: "pending"
+                state: "Accepted"
             }
         },
         {
@@ -125,6 +125,36 @@ const prob_sort = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, probs, "Problems sorted successfully"));
 })
 
+const get_history_prob=asyncHandler(async(req,res)=>{
+    const {problem_id,user_id}=req.body;
+    if(!problem_id||!user_id) return res.status(400).json(new ApiError(400,"Fields missing"));
+    const history=await Code.aggregate([
+        {
+            $match:{
+                problem_id: new mongoose.Types.ObjectId(problem_id),
+                writer: new mongoose.Types.ObjectId(user_id)
+            },
+        },{
+            $project:{
+                _id: 1,
+                code: 1,
+                state: 1,
+                memory: 1,
+                fexec_time: 1,
+                failed_cases: 1
+            }
+        },
+        {
+            $sort:{
+                createdAt: -1
+            }
+        }
+    ]);
+    console.log(history)
+    if(history.length==0) return res.status(300).json(new ApiResponse(300,"No History for this problem"));
+    return res.status(200).json(new ApiResponse(200,history,"History fetched successfully"));
+})
+
 const search_prob = asyncHandler(async (req, res) => {
     const { query } = req.body;
     const probs = await Problem.find({
@@ -138,4 +168,4 @@ const search_prob = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, probs, "Problem searched successfully"));
 })
 
-export { getallproblems, submit_problem, getproblem, getsolutions, prob_sort, search_prob };
+export { getallproblems, submit_problem, getproblem, getsolutions, prob_sort, search_prob, get_history_prob };
