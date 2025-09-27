@@ -17,8 +17,8 @@ prob_router.route("/submit-problem").post(upload.fields([
     }
 ]),verifyJWT,check_ps,submit_problem);
 prob_router.route("/get-problem/:id").get(getproblem);
-prob_router.route("/sort-problem").get(prob_sort);
-prob_router.route("/search-problem").get(search_prob);
+prob_router.route("/sort-problem").post(prob_sort);
+prob_router.route("/search-problem").post(search_prob);
 prob_router.route("/get-sols/:id").get(getsolutions);
 prob_router.route("/get-history").post(get_history_prob);
 

@@ -83,6 +83,11 @@ const prob_sort = asyncHandler(async (req, res) => {
     if (basis === "difficulty") {
         probs = await Problem.aggregate([
             {
+                $match:{
+                    state: "accepted"
+                }
+            },
+            {
                 $addFields: {
                     difficultyOrder: {
                         $switch: {
@@ -103,6 +108,11 @@ const prob_sort = asyncHandler(async (req, res) => {
     }
     else if (basis === "acceptance") {
         probs = await Problem.aggregate([
+            {
+                $match:{
+                    state: "accepted"
+                }
+            },
             {
                 $addFields: {
                     acceptance_rate: {
@@ -151,13 +161,14 @@ const get_history_prob=asyncHandler(async(req,res)=>{
         }
     ]);
     console.log(history)
-    if(history.length==0) return res.status(300).json(new ApiResponse(300,"No History for this problem"));
+    if(history.length==0) return res.status(300).json(new ApiResponse(300,[],"No History for this problem"));
     return res.status(200).json(new ApiResponse(200,history,"History fetched successfully"));
 })
 
 const search_prob = asyncHandler(async (req, res) => {
     const { query } = req.body;
     const probs = await Problem.find({
+        state: "accepted",
         $or: [
             { title: { $regex: query, $options: "i" } },
             { problem: { $regex: query, $options: "i" } },

@@ -35,12 +35,12 @@ export default function ProblemPage() {
         const dataProblem = await resProblem.json();
         if (!resProblem.ok) throw new Error(dataProblem.message || "Failed to fetch problem");
         setProblem(dataProblem.data);
-
+        
         const resSolutions = await fetch(`http://localhost:5000/api/get-sols/${id}`, { credentials: "include" });
         const dataSolutions = await resSolutions.json();
         if (!resSolutions.ok) throw new Error(dataSolutions.message || "Failed to fetch solutions");
         setSolutions(dataSolutions.data || []);
-
+        
         const resHistory = await fetch(`http://localhost:5000/api/get-history`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,7 +48,8 @@ export default function ProblemPage() {
           body: JSON.stringify({ problem_id: id, user_id: user._id })
         });
         const dataHistory = await resHistory.json();
-        console.log(dataHistory)
+        console.log(resSolutions)
+        console.log(resHistory)
         if (!resHistory.ok && dataHistory.statusCode !== 300) throw new Error(dataHistory.message || "Failed to fetch history");
         setHistory(dataHistory.data || []);
       } catch (err) {

@@ -34,7 +34,7 @@ export default function Navbar() {
                             Settings
                         </NavigationMenuLink>
                     </NavigationMenuItem>
-                    {(user?.role === "setter"||user?.role==="admin") && (
+                    {(user?.role === "setter" || user?.role === "admin") && (
                         <NavigationMenuItem>
                             <Link to="/submit-problem">
                                 <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
@@ -43,7 +43,7 @@ export default function Navbar() {
                             </Link>
                         </NavigationMenuItem>
                     )}
-                    {(user?.role==="admin") && (
+                    {(user?.role === "admin") && (
                         <NavigationMenuItem>
                             <Link to="/review-problem">
                                 <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
@@ -52,7 +52,7 @@ export default function Navbar() {
                             </Link>
                         </NavigationMenuItem>
                     )}
-                    {(user?.role==="admin") && (
+                    {(user?.role === "admin") && (
                         <NavigationMenuItem>
                             <Link to="/all-users">
                                 <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
@@ -61,6 +61,13 @@ export default function Navbar() {
                             </Link>
                         </NavigationMenuItem>
                     )}
+                    {(user?.role !== "admin") && (<NavigationMenuItem>
+                        <Link to="/user-list">
+                            <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                                Users
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>)}
                 </NavigationMenuList>
             </NavigationMenu>
             <button

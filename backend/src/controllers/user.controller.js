@@ -179,6 +179,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie("accessToken",accessToken,cookieOptions)
       .json(new ApiResponse(200, { user, accessToken }, "Access token refreshed successfully"));
   } catch (error) {
     return res.status(401).json(new ApiError(401, "Error refreshing the access token"));
@@ -244,4 +245,32 @@ const getuser_logs = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, codes, "Logs fetched successfully"));
 })
 
-export { registration, login, changePassword, logout, changeProfile, updateDetails, getcurrUser, refreshAccessToken, getotheruser, getuser_logs, codeprofile };
+const search_user=asyncHandler(async (req,res)=>{
+    const {query}=req.body;
+    const users=await User.find({
+        $or:[
+            {
+                username:{
+                    $regex: query,
+                    $options: "i"
+                }
+            },
+            {
+                fullname:{
+                    $regex: query,
+                    $options: "i"
+                }
+            },
+            {
+                email:{
+                    $regex: query,
+                    $options: "i"
+                }
+            }
+        ]
+    });
+    if(users.length==0) return res.status(404).json(new ApiError(404,"Users Not Found"));
+    return res.status(200).json(new ApiResponse(200,users,"Users Fetched Successfully"));
+})
+
+export { registration, login, changePassword, logout, changeProfile, updateDetails, getcurrUser, refreshAccessToken, getotheruser, getuser_logs, codeprofile, search_user };
