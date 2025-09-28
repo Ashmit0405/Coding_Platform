@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "@/context/AuthContext.jsx";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/navbar";
 
@@ -22,11 +23,10 @@ export default function ManageUsers({ accessToken }) {
   return (
     <div className="p-6 grid gap-4">
       <Navbar />
-      <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
+      {user?.role==="admin"?(<h1 className="text-2xl font-bold mb-4">Manage Users</h1>):(<h1 className="text-2xl font-bold mb-4">All Users</h1>)}
 
-      {/* Search Bar */}
       <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
-        <input
+        <Input
           type="text"
           placeholder="Search by username, fullname or email..."
           value={searchQuery}
@@ -56,53 +56,58 @@ export default function ManageUsers({ accessToken }) {
               <CardContent className="p-4">
                 <h2 className="text-lg font-semibold">
                   <Link
-                    to={`/user/${u._id}`}
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    {u.username} ({u.email})
-                  </Link>
+                  to={`/user/${u._id}`}
+                  className="text-blue-600 hover:underline text-lg font-semibold"
+                >
+                  {u.username}
+                </Link>
+                <p className="text-gray-700 font-medium">{u.fullname}</p>
+                <p className="text-gray-500">{u.email}</p>
                 </h2>
-                <p className="text-gray-600">Current Role: {u.role}</p>
 
-                <div className="flex gap-3 mt-4">
-                  {/* Role change buttons */}
-                  <Button
-                    variant="outline"
-                    className={`hover:cursor-pointer ${
-                      u.role === "user" ? "bg-gray-200" : ""
-                    }`}
-                    onClick={() => changeUserRole(u._id, "user")}
-                  >
-                    User
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className={`hover:cursor-pointer ${
-                      u.role === "setter" ? "bg-gray-200" : ""
-                    }`}
-                    onClick={() => changeUserRole(u._id, "setter")}
-                  >
-                    Setter
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className={`hover:cursor-pointer ${
-                      u.role === "admin" ? "bg-gray-200" : ""
-                    }`}
-                    onClick={() => changeUserRole(u._id, "admin")}
-                  >
-                    Admin
-                  </Button>
+                {user?.role === "admin" && (
+                  <>
+                    <p className="text-gray-600">Current Role: {u.role}</p>
+                    <div className="flex gap-3 mt-4">
+                      <Button
+                        variant="outline"
+                        className={`hover:cursor-pointer ${
+                          u.role === "user" ? "bg-gray-200" : ""
+                        }`}
+                        onClick={() => changeUserRole(u._id, "user")}
+                      >
+                        User
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className={`hover:cursor-pointer ${
+                          u.role === "setter" ? "bg-gray-200" : ""
+                        }`}
+                        onClick={() => changeUserRole(u._id, "setter")}
+                      >
+                        Setter
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className={`hover:cursor-pointer ${
+                          u.role === "admin" ? "bg-gray-200" : ""
+                        }`}
+                        onClick={() => changeUserRole(u._id, "admin")}
+                      >
+                        Admin
+                      </Button>
 
-                  {/* Remove user */}
-                  <Button
-                    variant="destructive"
-                    className="ml-auto hover:cursor-pointer hover:bg-red-700"
-                    onClick={() => removeUser(u._id)}
-                  >
-                    Remove
-                  </Button>
-                </div>
+                      {/* Remove user */}
+                      <Button
+                        variant="destructive"
+                        className="ml-auto hover:cursor-pointer hover:bg-red-700"
+                        onClick={() => removeUser(u._id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           ))

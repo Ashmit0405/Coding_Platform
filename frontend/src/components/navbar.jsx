@@ -18,21 +18,11 @@ export default function Navbar() {
             <NavigationMenu>
                 <NavigationMenuList className="flex space-x-6">
                     <NavigationMenuItem>
-                        <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
-                            Dashboard
-                        </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
                         <Link to="/profile">
                             <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
                                 Profile
                             </NavigationMenuLink>
                         </Link>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
-                            Settings
-                        </NavigationMenuLink>
                     </NavigationMenuItem>
                     {(user?.role === "setter" || user?.role === "admin") && (
                         <NavigationMenuItem>
@@ -52,22 +42,13 @@ export default function Navbar() {
                             </Link>
                         </NavigationMenuItem>
                     )}
-                    {(user?.role === "admin") && (
-                        <NavigationMenuItem>
-                            <Link to="/all-users">
-                                <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
-                                    Users List
-                                </NavigationMenuLink>
-                            </Link>
-                        </NavigationMenuItem>
-                    )}
-                    {(user?.role !== "admin") && (<NavigationMenuItem>
-                        <Link to="/user-list">
+                    <NavigationMenuItem>
+                        <Link to="/all-users">
                             <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
-                                Users
+                                Users List
                             </NavigationMenuLink>
                         </Link>
-                    </NavigationMenuItem>)}
+                    </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
             <button
