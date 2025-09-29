@@ -20,6 +20,6 @@ prob_router.route("/get-problem/:id").get(getproblem);
 prob_router.route("/sort-problem").post(prob_sort);
 prob_router.route("/search-problem").post(search_prob);
 prob_router.route("/get-sols/:id").get(getsolutions);
-prob_router.route("/get-history").post(get_history_prob);
+prob_router.route("/get-history").post(verifyJWT,get_history_prob);
 
 export {prob_router}

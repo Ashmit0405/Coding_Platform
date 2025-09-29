@@ -8,6 +8,7 @@ import { Problem } from "../model/problem.model.js";
 import { Code } from "../model/code.model.js";
 import axios from "axios"
 import path from "path";
+import { isValidObjectId } from "mongoose";
 
 const run_code = asyncHandler(async (req, res) => {
     const { language, code, problem_id, writer } = req.body;
@@ -240,4 +241,13 @@ const checkResults = async (container, problem_id, submit_id, output_lines, inpu
     return results;
 };
 
-export { run_code };
+const getsubmission=asyncHandler(async (req,res)=>{
+    const {id}=req.params;
+    console.log(id)
+    if(!id||!isValidObjectId(id)) return res.status(400).json(new ApiError(400,"Id Not Correct"));
+    const sub=await Code.findById(id)
+    if(!sub) return res.status(400).json(new ApiError(400,"Error Fetching the submission"));
+    return res.status(200).json(new ApiResponse(200,sub,"Submission Fetched Successfully"))
+})
+
+export { run_code,getsubmission };

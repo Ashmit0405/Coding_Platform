@@ -46,123 +46,134 @@ const getproblem = asyncHandler(async (req, res) => {
 })
 
 const getsolutions = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.isValidObjectId(id)) return res.status(401).json(new ApiError(401, "Invalid Object Id"));
-
-    const ans = await Code.aggregate([
-        {
-            $match: {
-                problem_id: new mongoose.Types.ObjectId(id),
-                state: "Accepted"
-            }
-        },
-        {
-            $project: {
-                _id: 0,
-                writer: 1,
-                code: 1,
-                createdAt: 1
-            }
-        },
-        {
-            $sort: {
-                createdAt: -1
-            }
-        }
-    ])
-
-    if (ans.length == 0) return res.status(400).json(new ApiError(400, "Error fetching the codes"));
-
-    return res.status(200).json(new ApiResponse(200, ans, "All accepted solutions fetched successfully"));
-})
-
-const prob_sort = asyncHandler(async (req, res) => {
-    const { basis, order } = req.body;
-    const sortOrder = order === "asc" ? 1 : -1;
-    let probs;
-    if (basis === "difficulty") {
-        probs = await Problem.aggregate([
+    try {
+        const { id } = req.params;
+        if (!mongoose.isValidObjectId(id)) return res.status(401).json(new ApiError(401, "Invalid Object Id"));
+        const ans = await Code.aggregate([
             {
-                $match:{
-                    state: "accepted"
+                $match: {
+                    problem_id: new mongoose.Types.ObjectId(id),
+                    state: "Accepted"
                 }
             },
             {
-                $addFields: {
-                    difficultyOrder: {
-                        $switch: {
-                            branches: [
-                                { case: { $eq: ["$difficulty", "Easy"] }, then: 1 },
-                                { case: { $eq: ["$difficulty", "Medium"] }, then: 2 },
-                                { case: { $eq: ["$difficulty", "Hard"] }, then: 3 }
-                            ],
-                            default: 4
-                        }
-                    }
-                }
-            },
-            { $sort: { difficultyOrder: sortOrder } }
-        ]);
-
-        if (probs.length == 0) return res.status(404).json(new ApiError(404, "Problems not found"));
-    }
-    else if (basis === "acceptance") {
-        probs = await Problem.aggregate([
-            {
-                $match:{
-                    state: "accepted"
-                }
-            },
-            {
-                $addFields: {
-                    acceptance_rate: {
-                        $cond: {
-                            if: { $eq: ["$submissions", 0] },
-                            then: 0,
-                            else: { $divide: ["$accepted", "$submissions"] }
-                        }
-                    }
+                $project: {
+                    _id: 1,
+                    writer: 1,
+                    code: 1,
+                    createdAt: 1
                 }
             },
             {
                 $sort: {
-                    acceptance_rate: sortOrder
+                    createdAt: -1
                 }
             }
         ])
-        if (probs.length == 0) return res.status(404).json(new ApiError(404, "Problems not found"));
+    
+        if (ans.length == 0) {
+            return res.status(200).json(new ApiResponse(200,[],"Problem has no solutions"));
+        }
+        return res.status(200).json(new ApiResponse(200,ans,"Solutions fetched successfully"));
+    } catch (error) {
+        return res.status(500).json(new ApiError(500,"Error searching in the db"))
     }
-    return res.status(200).json(new ApiResponse(200, probs, "Problems sorted successfully"));
 })
 
-const get_history_prob=asyncHandler(async(req,res)=>{
-    const {problem_id,user_id}=req.body;
-    if(!problem_id||!user_id) return res.status(400).json(new ApiError(400,"Fields missing"));
-    const history=await Code.aggregate([
-        {
-            $match:{
-                problem_id: new mongoose.Types.ObjectId(problem_id),
-                writer: new mongoose.Types.ObjectId(user_id)
-            },
-        },{
-            $project:{
-                _id: 1,
-                code: 1,
-                state: 1,
-                memory: 1,
-                fexec_time: 1,
-                failed_cases: 1
-            }
-        },
-        {
-            $sort:{
-                createdAt: -1
-            }
+const prob_sort = asyncHandler(async (req, res) => {
+    try {
+        const { basis, order } = req.body;
+        const sortOrder = order === "asc" ? 1 : -1;
+        let probs;
+        if (basis === "difficulty") {
+            probs = await Problem.aggregate([
+                {
+                    $match: {
+                        state: "accepted"
+                    }
+                },
+                {
+                    $addFields: {
+                        difficultyOrder: {
+                            $switch: {
+                                branches: [
+                                    { case: { $eq: ["$difficulty", "Easy"] }, then: 1 },
+                                    { case: { $eq: ["$difficulty", "Medium"] }, then: 2 },
+                                    { case: { $eq: ["$difficulty", "Hard"] }, then: 3 }
+                                ],
+                                default: 4
+                            }
+                        }
+                    }
+                },
+                { $sort: { difficultyOrder: sortOrder } }
+            ]);
+    
+            if (probs.length == 0) return res.status(404).json(new ApiError(404, "Problems not found"));
         }
-    ]);
-    console.log(history)
-    if(history.length==0) return res.status(300).json(new ApiResponse(300,[],"No History for this problem"));
-    return res.status(200).json(new ApiResponse(200,history,"History fetched successfully"));
+        else if (basis === "acceptance") {
+            probs = await Problem.aggregate([
+                {
+                    $match: {
+                        state: "accepted"
+                    }
+                },
+                {
+                    $addFields: {
+                        acceptance_rate: {
+                            $cond: {
+                                if: { $eq: ["$submissions", 0] },
+                                then: 0,
+                                else: { $divide: ["$accepted", "$submissions"] }
+                            }
+                        }
+                    }
+                },
+                {
+                    $sort: {
+                        acceptance_rate: sortOrder
+                    }
+                }
+            ])
+            if (probs.length == 0) return res.status(200).json(new ApiResponse(200, "Problems not found"));
+        }
+        return res.status(200).json(new ApiResponse(200, probs, "Problems sorted successfully"));
+    } catch (error) {
+        return res.status(500).json(new ApiError(500,"Error sorting the problems"));
+    }
+})
+
+const get_history_prob = asyncHandler(async (req, res) => {
+    try {
+        const { problem_id, user_id } = req.body;
+        if (!problem_id || !user_id) return res.status(400).json(new ApiError(400, "Fields missing"));
+        const history = await Code.aggregate([
+            {
+                $match: {
+                    problem_id: new mongoose.Types.ObjectId(problem_id),
+                    writer: new mongoose.Types.ObjectId(user_id)
+                },
+            }, {
+                $project: {
+                    _id: 1,
+                    code: 1,
+                    state: 1,
+                    memory: 1,
+                    fexec_time: 1,
+                    failed_cases: 1
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            }
+        ]);
+        if (history.length == 0) return res.status(200).json(new ApiResponse(200, [], "No History for this problem"));
+        return res.status(200).json(new ApiResponse(200, history, "History fetched successfully"));
+    } catch (error) {
+        return res.status(500).json(new ApiError(500,error?error:"Error searching the db"))
+    }
 })
 
 const search_prob = asyncHandler(async (req, res) => {

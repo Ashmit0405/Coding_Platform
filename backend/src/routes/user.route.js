@@ -22,7 +22,7 @@ userroute.route("/change-profile").post(verifyJWT,upload.fields([
 ]),changeProfile);
 userroute.route("/get-curr-user").get(verifyJWT,getcurrUser);
 userroute.route("/refresh-access").post(refreshAccessToken);
-userroute.route("/get/:id").get(getotheruser);
+userroute.route("/get-user/:id").get(getotheruser);
 userroute.route("/get-logs/:problem_id").get(verifyJWT,getuser_logs);
 userroute.route("/get-coding-profile").get(verifyJWT,codeprofile)
 userroute.route("/update-details").post(verifyJWT,updateDetails)
