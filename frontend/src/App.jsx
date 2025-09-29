@@ -11,9 +11,11 @@ import SubmitProblem from "./pages/Submit_Problem.jsx";
 import ReviewProblems from "./pages/Review_Problem.jsx";
 import ManageUsers from "./pages/Users.jsx"
 import UserProfile from "./pages/Other.jsx";
+import SubmissionDetails from "./pages/Submission.jsx";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
+  console.log(user)
   if (loading) return <p>Loading...</p>;
   if (!user) return <Navigate to="/login" replace />;
   return children;
@@ -42,7 +44,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
-          path="/problems/:id"
+          path="/problem/:id"
           element={
             <ProtectedRoute>
               <ProblemPage />
@@ -78,6 +80,14 @@ function App() {
           element={
             <ProtectedRoute>
               <UserProfile/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/submission/:id"
+          element={
+            <ProtectedRoute>
+              <SubmissionDetails/>
             </ProtectedRoute>
           }
         />

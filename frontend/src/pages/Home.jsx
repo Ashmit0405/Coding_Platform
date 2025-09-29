@@ -90,7 +90,7 @@ export default function Home() {
                 {problems.map((p) => (
                   <tr key={p._id} className="hover:bg-gray-50">
                     <td className="border px-4 py-2 text-blue-600 hover:underline">
-                      <Link to={`/problems/${p._id}`}>{p.title}</Link>
+                      <Link to={`/problem/${p._id}`}>{p.title}</Link>
                     </td>
                     <td className="border px-4 py-2">{p.difficulty}</td>
                     <td className="border px-4 py-2">{p.accepted}</td>

@@ -23,7 +23,7 @@ export default function UserProfile() {
         const fetchUserProfile = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`http://localhost:5000/api/get/${userId}`, {
+                const res = await fetch(`http://localhost:5000/api/get-user/${userId}`, {
                     credentials: "include",
                 });
                 const data = await res.json();
