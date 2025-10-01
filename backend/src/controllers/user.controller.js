@@ -188,7 +188,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const getotheruser = asyncHandler(async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(401).json(new ApiError(401, "Id not found"));
-    const user = await User.findById(id).select("-password -refreshToken -role");
+    const user = await User.findById(id).select("-password -refreshToken");
     if (!user) return res.status(401).json(new ApiError(401, "Error fetching the user"));
     const profile = await Code.aggregate([
         {

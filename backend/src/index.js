@@ -4,21 +4,25 @@ import { image_build } from "./utils/imageBuild.js";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js"
 
-// try {
-//     image_build();
-// } catch (error) {
-//     throw error;
-// }
+try {
+    image_build();
+} catch (error) {
+    throw error;
+}
 
-// for(const pool of Object.values(cons)){
-//     pool.init()
-//     console.log(`Pool of language ${pool.language}`);
-// }
+for(const pool of Object.values(cons)){
+    await pool.init()
+    console.log(`Pool of language ${pool.language}`);
+}
 
 dotenv.config();
 
 const PORT=process.env.PORT || 5000;
-connectDB();
+try {
+    connectDB();
+} catch (error) {
+    throw error;
+}
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
