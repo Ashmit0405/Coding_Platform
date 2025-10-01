@@ -12,6 +12,7 @@ import AcceptedSolutions from "@/components/problem/Accepted.jsx";
 import SubmissionHistory from "@/components/problem/History.jsx";
 import ProblemDetails from "@/components/problem/ProblemDetails.jsx";
 import SubmitSolution from "@/components/problem/SubmitSolution.jsx";
+import { Button } from "@/components/ui/button";
 export default function ProblemPage() {
   const { id } = useParams();
   const { user } = useContext(AuthContext);
@@ -69,8 +70,8 @@ export default function ProblemPage() {
       </div>
 
       <div className="flex mt-4 gap-4">
-        {!solutionsVisible && <button onClick={() => setSolutionsVisible(true)}>Show Accepted Solutions</button>}
-        {!historyVisible && <button onClick={() => setHistoryVisible(true)}>Show Your History</button>}
+        {!solutionsVisible && <Button  className={"hover:cursor-pointer"} onClick={() => setSolutionsVisible(true)}>Show Accepted Solutions</Button>}
+        {!historyVisible && <Button className={"hover:cursor-pointer"} onClick={() => setHistoryVisible(true)}>Show Your History</Button>}
       </div>
     </div>
   );

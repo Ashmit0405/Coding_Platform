@@ -58,10 +58,10 @@ export default function ReviewProblems() {
                 <p className="text-gray-600">{problem.problem}</p>
 
                 <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
-                  <span>🟢 Difficulty: {problem.difficulty}</span>
-                  <span>👤 Submitted by: {problem.submiter}</span>
-                  <span>💾 Memory: {problem.memory_limit} MB</span>
-                  <span>⏱️ Time: {problem.time_limit}s</span>
+                  <span>Difficulty: {problem.difficulty}</span>
+                  <span>Submitted by: {problem.submiter}</span>
+                  <span>Memory: {problem.memory_limit} MB</span>
+                  <span>Time: {problem.time_limit}s</span>
                 </div>
 
                 <div className="flex gap-3 mt-4">
@@ -71,7 +71,7 @@ export default function ReviewProblems() {
                     rel="noopener noreferrer"
                   >
                     <Button variant="outline" className="hover:cursor-pointer">
-                      Download Testcases 📥
+                      Download Testcases
                     </Button>
                   </a>
                   <a
@@ -80,7 +80,7 @@ export default function ReviewProblems() {
                     rel="noopener noreferrer"
                   >
                     <Button variant="outline" className="hover:cursor-pointer">
-                      Download Expected 📥
+                      Download Expected 
                     </Button>
                   </a>
                 </div>

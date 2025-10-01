@@ -61,7 +61,7 @@ export default function SubmitProblem() {
       console.log(result)
       if (!res.ok) throw new Error(result.message || "Submission failed");
 
-      setMessage("Problem submitted successfully! ✅");
+      setMessage("Problem submitted successfully!");
       setFormData({
         title: "",
         problem: "",

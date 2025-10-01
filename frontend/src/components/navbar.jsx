@@ -18,36 +18,36 @@ export default function Navbar() {
             <NavigationMenu>
                 <NavigationMenuList className="flex space-x-6">
                     <NavigationMenuItem>
-                        <Link to="/profile">
-                            <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                        <NavigationMenuLink asChild className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                            <Link to="/profile">
                                 Profile
-                            </NavigationMenuLink>
-                        </Link>
+                            </Link>
+                        </NavigationMenuLink>
                     </NavigationMenuItem>
                     {(user?.role === "setter" || user?.role === "admin") && (
                         <NavigationMenuItem>
-                            <Link to="/submit-problem">
-                                <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                            <NavigationMenuLink asChild className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                                <Link to="/submit-problem">
                                     Submit Problem
-                                </NavigationMenuLink>
-                            </Link>
+                                </Link>
+                            </NavigationMenuLink>
                         </NavigationMenuItem>
                     )}
                     {(user?.role === "admin") && (
                         <NavigationMenuItem>
-                            <Link to="/review-problem">
-                                <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                            <NavigationMenuLink asChild className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                                <Link to="/review-problem">
                                     Review Problem
-                                </NavigationMenuLink>
-                            </Link>
+                                </Link>
+                            </NavigationMenuLink>
                         </NavigationMenuItem>
                     )}
                     <NavigationMenuItem>
-                        <Link to="/all-users">
-                            <NavigationMenuLink className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                        <NavigationMenuLink asChild className="text-gray-700 hover:text-blue-600 hover:cursor-pointer transition-colors font-medium">
+                            <Link to="/all-users">
                                 Users List
-                            </NavigationMenuLink>
-                        </Link>
+                            </Link>
+                        </NavigationMenuLink>
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>

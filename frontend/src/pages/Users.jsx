@@ -97,7 +97,6 @@ export default function ManageUsers({ accessToken }) {
                         Admin
                       </Button>
 
-                      {/* Remove user */}
                       <Button
                         variant="destructive"
                         className="ml-auto hover:cursor-pointer hover:bg-red-700"

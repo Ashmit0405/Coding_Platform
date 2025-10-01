@@ -3,13 +3,11 @@ import { Button } from "@/components/ui/button";
 
 export default function ProfileInfo({
   user,
-  showDetailsForm,
   setShowDetailsForm,
-  showProfileForm,
   setShowProfileForm,
-  showChangeForm,
   setShowChangeForm,
-  childrenForms,
+  isSelf,
+  childrenForms
 }) {
   return (
     <Card>
@@ -30,17 +28,19 @@ export default function ProfileInfo({
           />
         )}
 
-        <div className="flex flex-wrap gap-2 mt-4">
-          <Button variant="default" onClick={() => setShowDetailsForm((prev) => !prev)}>
-            {showDetailsForm ? "Cancel" : "Update Details"}
-          </Button>
-          <Button variant="default" onClick={() => setShowProfileForm((prev) => !prev)}>
-            {showProfileForm ? "Cancel" : "Change Profile Photo"}
-          </Button>
-          <Button variant="default" onClick={() => setShowChangeForm((prev) => !prev)}>
-            {showChangeForm ? "Cancel" : "Change Password"}
-          </Button>
-        </div>
+        {isSelf && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            <Button onClick={() => setShowDetailsForm(prev => !prev)}>
+              Update Details
+            </Button>
+            <Button onClick={() => setShowProfileForm(prev => !prev)}>
+              Change Profile Photo
+            </Button>
+            <Button onClick={() => setShowChangeForm(prev => !prev)}>
+              Change Password
+            </Button>
+          </div>
+        )}
 
         {childrenForms}
       </CardContent>
