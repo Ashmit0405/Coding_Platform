@@ -1,14 +1,7 @@
 import {app} from "./app.js"
 import {cons} from "./utils/containerpools.js"
-import { image_build } from "./utils/imageBuild.js";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js"
-
-try {
-    image_build();
-} catch (error) {
-    throw error;
-}
 
 for(const pool of Object.values(cons)){
     await pool.init()
