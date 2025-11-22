@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "node src/utils/imageBuild.js",
     "dev": "nodemon src/index.js"
   },
   "keywords": [],
