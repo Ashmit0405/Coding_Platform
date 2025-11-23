@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function useUpdateDetails(token, user) {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const updateDetails = async (detailsForm, onSuccess) => {
     if (
@@ -18,7 +19,7 @@ export default function useUpdateDetails(token, user) {
     setMsg("Processing...");
 
     try {
-      const res = await fetch("http://localhost:5000/api/update-details", {
+      const res = await fetch(`${API}/api/update-details`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

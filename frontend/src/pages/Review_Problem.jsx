@@ -7,9 +7,10 @@ import { AuthContext } from "@/context/AuthContext.jsx";
 export default function ReviewProblems() {
   const [problems, setProblems] = useState([]);
   const { user } = useContext(AuthContext); 
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/get-dashboard", {
+    fetch(`${API}/api/get-dashboard`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -21,7 +22,7 @@ export default function ReviewProblems() {
 
   const handleReview = async (id, action) => {
     try {
-      const res = await fetch("http://localhost:5000/api/accept-reject", {
+      const res = await fetch(`${API}/api/accept-reject`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

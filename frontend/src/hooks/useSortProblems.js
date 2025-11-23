@@ -2,12 +2,13 @@ import { useState } from "react";
 
 export default function useSortProblems(accessToken, setProblems) {
   const [loading, setLoading] = useState(false);
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const sortProblems = async (basis, order) => {
     if (!basis) return;
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/sort-problem", {
+      const res = await fetch(`${API}/api/sort-problem`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

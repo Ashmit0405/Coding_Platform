@@ -14,6 +14,7 @@ export default function Register() {
   });
   const [msg, setMsg] = useState("");
   const navigate=useNavigate();
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,7 +28,7 @@ export default function Register() {
     });
 
     try {
-      const res = await fetch("http://localhost:5000/api/register", {
+      const res = await fetch(`${API}/api/register`, {
         method: "POST",
         body: formData,
       });

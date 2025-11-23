@@ -21,6 +21,7 @@ export default function SubmitProblem() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -51,7 +52,7 @@ export default function SubmitProblem() {
       if (formData.testcases) data.append("testcases", formData.testcases);
       if (formData.expected) data.append("expected", formData.expected);
 
-      const res = await fetch("http://localhost:5000/api/submit-problem", {
+      const res = await fetch(`${API}/api/submit-problem`, {
         method: "POST",
         credentials: "include",
         body: data,

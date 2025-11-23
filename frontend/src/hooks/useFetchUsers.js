@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 export default function useFetchUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   useEffect(() => {
-    fetch("http://localhost:5000/api/get-all-users", {
+    fetch(`${API}/api/get-all-users`, {
       credentials: "include",
     })
       .then((res) => res.json())

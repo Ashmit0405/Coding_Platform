@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export default function useSearchProblems(accessToken, setProblems, fetchProblems) {
   const [loading, setLoading] = useState(false);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   const searchProblems = async (query) => {
     if (!query.trim()) {
       fetchProblems(); // fallback to all
@@ -11,7 +11,7 @@ export default function useSearchProblems(accessToken, setProblems, fetchProblem
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/search-problem", {
+      const res = await fetch(`${API}/api/search-problem`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

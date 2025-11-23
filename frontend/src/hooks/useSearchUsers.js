@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function useSearchUsers(setUsers, accessToken) {
   const [searching, setSearching] = useState(false);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   const searchUsers = async (query) => {
     if (!query.trim()) {
       setSearching(false);
@@ -12,7 +12,7 @@ export default function useSearchUsers(setUsers, accessToken) {
 
     try {
       setSearching(true);
-      const res = await fetch("http://localhost:5000/api/search-user", {
+      const res = await fetch(`${API}/api/search-user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

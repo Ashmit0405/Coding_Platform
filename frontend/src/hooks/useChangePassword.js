@@ -3,12 +3,13 @@ import { useState } from "react";
 export default function useChangePassword(token) {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const changePassword = async (oldPassword, newPassword, onSuccess) => {
     setLoading(true);
     setMsg("Processing...");
     try {
-      const res = await fetch("http://localhost:5000/api/password-change", {
+      const res = await fetch(`${API}/api/password-change`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

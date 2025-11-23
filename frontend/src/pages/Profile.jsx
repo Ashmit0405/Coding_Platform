@@ -18,7 +18,7 @@ export default function Profile() {
   const [showProfileForm, setShowProfileForm] = useState(false);
   const [showChangeForm, setShowChangeForm] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(true);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   const isOwnProfile = !userId || (loggedInUser && userId === loggedInUser._id);
 
   useEffect(() => {
@@ -27,14 +27,14 @@ export default function Profile() {
       try {
         if (isOwnProfile) {
           setProfileUser(loggedInUser);
-          const res = await fetch("http://localhost:5000/api/get-coding-profile", {
+          const res = await fetch(`${API}/api/get-coding-profile`, {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",
           });
           const data = await res.json();
           setProblems(data.data || []);
         } else {
-          const res = await fetch(`http://localhost:5000/api/get-user/${userId}`, {
+          const res = await fetch(`${API}/api/get-user/${userId}`, {
             credentials: "include",
           });
           const data = await res.json();

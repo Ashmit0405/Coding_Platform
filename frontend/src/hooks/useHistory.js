@@ -4,12 +4,12 @@ export default function useHistory(id, userId) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   useEffect(() => {
     const fetchHistory = async () => {
       console.log({ problem_id: id, user_id: userId })
       try {
-        const res = await fetch(`http://localhost:5000/api/get-history`, {
+        const res = await fetch(`${API}/api/get-history`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

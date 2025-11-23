@@ -3,13 +3,14 @@ import { useState } from "react";
 export default function useSubmission({ problemId, user }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const submitSolution = async (values) => {
     setSubmitting(true);
     setResult(null);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/run`, {
+      const res = await fetch(`${API}/api/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

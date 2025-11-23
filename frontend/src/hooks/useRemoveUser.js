@@ -1,8 +1,10 @@
 // src/hooks/useRemoveUser.js
 export default function useRemoveUser(setUsers) {
+  const API = import.meta.env.VITE_BACKEND_URL;  
+
   const removeUser = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/remove-acc/${id}`, {
+      const res = await fetch(`${API}/api/remove-acc/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

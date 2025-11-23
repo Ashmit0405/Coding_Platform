@@ -4,11 +4,12 @@ export default function useSolutions(id) {
   const [solutions, setSolutions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   useEffect(() => {
     const fetchSolutions = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/get-sols/${id}`, {
+        const res = await fetch(`${API}/api/get-sols/${id}`, {
           credentials: "include",
         });
         const data = await res.json();

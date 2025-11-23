@@ -6,10 +6,10 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const refreshUser = useCallback(async () => {
+const API = import.meta.env.VITE_BACKEND_URL;  
+const refreshUser = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/refresh-access", {
+      const res = await fetch(`${API}/api/refresh-access`, {
         method: "POST",
         credentials: "include",
       });
@@ -32,7 +32,7 @@ export default function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const res = await fetch("http://localhost:5000/api/login", {
+      const res = await fetch(`${API}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -52,7 +52,7 @@ export default function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:5000/api/logout", {
+      await fetch(`${API}/api/logout`, {
         method: "POST",
         credentials: "include",
       });

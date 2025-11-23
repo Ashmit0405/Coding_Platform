@@ -1,8 +1,10 @@
 // src/hooks/useChangeUserRole.js
 export default function useChangeUserRole(setUsers) {
+  const API = import.meta.env.VITE_BACKEND_URL;  
+
   const changeUserRole = async (id, newRole) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/change-role`, {
+      const res = await fetch(`${API}/api/change-role`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

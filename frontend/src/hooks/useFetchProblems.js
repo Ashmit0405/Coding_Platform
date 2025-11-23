@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 export default function useFetchProblems(accessToken) {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API = import.meta.env.VITE_BACKEND_URL;  
 
   const fetchProblems = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/get-all-problems", {
+      const res = await fetch(`${API}/api/get-all-problems`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

@@ -11,11 +11,11 @@ export default function SubmissionDetails() {
   const { id } = useParams();
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   useEffect(() => {
     const fetchSubmission = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/get-sub/${id}`, { credentials: "include" });
+        const res = await fetch(`${API}/api/get-sub/${id}`, { credentials: "include" });
         const data = await res.json();
         if (data.success) setSubmission(data.data);
       } catch (err) {

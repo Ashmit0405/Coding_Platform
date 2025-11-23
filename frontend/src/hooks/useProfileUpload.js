@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function useProfileUpload(token) {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   const uploadProfile = async (file, onSuccess) => {
     if (!file) {
       setMsg("Please select a file first.");
@@ -17,7 +17,7 @@ export default function useProfileUpload(token) {
       const formData = new FormData();
       formData.append("coverImage_path", file);
 
-      const res = await fetch("http://localhost:5000/api/change-profile", {
+      const res = await fetch(`${API}/api/change-profile`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

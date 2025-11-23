@@ -4,11 +4,11 @@ export default function useProblem(id) {
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const API = import.meta.env.VITE_BACKEND_URL;  
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/get-problem/${id}`, {
+        const res = await fetch(`${API}/api/get-problem/${id}`, {
           credentials: "include",
         });
         const data = await res.json();
