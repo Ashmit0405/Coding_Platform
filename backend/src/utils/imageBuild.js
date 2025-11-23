@@ -3,7 +3,7 @@ import {execSync} from "child_process"
 const image_build=()=>{
     const images=[
         {"Image":"gcc-gnu:latest","DockerFile":"./public/images/Dockerfile.cpp"},
-        {"Image":"java-gnu:17-slim","DockerFile":"./public/images/Dockerfile.java"},
+        {"Image":"eclipse-temurin-gnu:17-jdk","DockerFile":"./public/images/Dockerfile.java"},
         {"Image":"py-gnu:3.11","DockerFile":"./public/images/Dockerfile.python"},
         {"Image":"node:22","DockerFile":"./public/images/Dockerfile.js"}
     ]
