@@ -40,7 +40,7 @@ export default function SubmissionInfo({ submission }) {
         <Separator />
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="font-medium">Execution Time:</span> {submission.fexec_time} ms
+            <span className="font-medium">Execution Time:</span> {submission.fexec_time_wall} ms
           </div>
           <div>
             <span className="font-medium">Memory:</span> {submission.memory} MB

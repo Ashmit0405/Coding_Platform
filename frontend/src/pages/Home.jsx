@@ -25,7 +25,7 @@ export default function Home() {
       <Navbar />
       <main>
         <h2 className="text-2xl font-bold">
-          Welcome <span className="text-blue-600">{user.username}</span> 🎉
+          Welcome <span className="text-blue-600">{user.username}</span>
         </h2>
 
         <div className="flex flex-col md:flex-row items-center gap-4 my-6">
