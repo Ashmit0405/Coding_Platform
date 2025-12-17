@@ -12,7 +12,7 @@ export default function Login() {
   const { user, login } = useContext(AuthContext);
 
   if (user) {
-    console.log(user);
+    // console.log(user);
     
     return <Navigate to="/" replace />;
   }
@@ -20,7 +20,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await login(email, password);
-    console.log(success)
+    // console.log(success)
     if (success) {
       navigate("/");
     } else {

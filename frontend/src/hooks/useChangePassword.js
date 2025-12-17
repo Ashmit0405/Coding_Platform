@@ -20,7 +20,7 @@ export default function useChangePassword(token) {
       });
 
       const data = await res.json();
-      console.log(data)
+      // console.log(data)
       if (res.ok) {
         setMsg(data.message || "Password changed successfully!");
         if (onSuccess) onSuccess();

@@ -1,4 +1,3 @@
-// src/hooks/useRemoveUser.js
 export default function useRemoveUser(setUsers) {
   const API = import.meta.env.VITE_BACKEND_URL;  
 

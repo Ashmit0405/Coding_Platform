@@ -21,7 +21,7 @@ export default function SubmissionHistory({ history, loading, error, visible, se
             <Card key={idx} className="border p-2">
               <p className="text-sm text-gray-500">Status: {h.state}</p>
               <p className="text-xs text-gray-400">
-                Memory: {h.memory} MB | Time: {h.fexec_time} ms
+                Memory: {h.memory} MB | Time: {h.fexec_time_wall} ms
               </p>
               <Link
                 to={`/submission/${h._id}`}

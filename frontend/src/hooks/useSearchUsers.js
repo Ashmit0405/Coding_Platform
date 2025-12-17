@@ -1,4 +1,3 @@
-// src/hooks/useSearchUsers.js
 import { useState } from "react";
 
 export default function useSearchUsers(setUsers, accessToken) {

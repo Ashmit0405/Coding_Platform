@@ -5,7 +5,7 @@ export default function useSearchProblems(accessToken, setProblems, fetchProblem
   const API = import.meta.env.VITE_BACKEND_URL;  
   const searchProblems = async (query) => {
     if (!query.trim()) {
-      fetchProblems(); // fallback to all
+      fetchProblems();
       return;
     }
 

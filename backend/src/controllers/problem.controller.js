@@ -159,7 +159,7 @@ const get_history_prob = asyncHandler(async (req, res) => {
                     code: 1,
                     state: 1,
                     memory: 1,
-                    fexec_time: 1,
+                    fexec_time_wall: 1,
                     failed_cases: 1
                 }
             },

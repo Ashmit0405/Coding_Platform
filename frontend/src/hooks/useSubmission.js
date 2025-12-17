@@ -23,7 +23,7 @@ export default function useSubmission({ problemId, user }) {
       });
 
       const data = await res.json();
-      console.log("Run API response:", data);
+      // console.log("Run API response:", data);
 
       if (!res.ok) throw new Error(data.message || "Submission failed");
 
@@ -34,19 +34,19 @@ export default function useSubmission({ problemId, user }) {
       if (typeof text === "string") {
         if (text.includes("TLE")) {
           status = "TLE";
-          text = "⏱️ Time Limit Exceeded";
+          text = "Time Limit Exceeded";
         } else if (text.includes("MLE")) {
           status = "MLE";
-          text = "💾 Memory Limit Exceeded";
+          text = "Memory Limit Exceeded";
         } else if (text.includes("Runtime/Compilation")) {
           status = "RTE";
-          text = "❌ Runtime/Compilation Error";
+          text = "Runtime/Compilation Error";
         } else if (text.includes("All cases passed")) {
           status = "AC";
-          text = "✅ Accepted";
+          text = "Accepted";
         } else if (text.includes("Wrong Answer")) {
           status = "WA";
-          text = "⚠️ Wrong Answer";
+          text = "Wrong Answer";
         }
       }
 

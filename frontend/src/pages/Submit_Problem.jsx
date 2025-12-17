@@ -59,7 +59,6 @@ export default function SubmitProblem() {
       });
 
       const result = await res.json();
-      console.log(result)
       if (!res.ok) throw new Error(result.message || "Submission failed");
 
       setMessage("Problem submitted successfully!");

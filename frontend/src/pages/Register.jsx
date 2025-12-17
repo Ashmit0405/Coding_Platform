@@ -34,7 +34,7 @@ export default function Register() {
       });
 
       const resp = await res.json();
-      console.log(resp)
+      // console.log(resp)
       if(resp.statusCode==200){
         setMsg(resp.message || "Registered successfully!");
         navigate("/login");
