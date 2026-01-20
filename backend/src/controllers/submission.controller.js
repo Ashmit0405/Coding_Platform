@@ -24,14 +24,15 @@ const run_code = asyncHandler(async (req, res) => {
 
     const problem = await Problem.findById(problem_id);
     if (!problem) return res.status(401).json(new ApiError(401, "Problem not found"));
-
+    await Problem.findByIdAndUpdate(problem_id,{$inc:{submissions:1}});
     const pool = cons[language];
     if (!pool) return res.status(401).json(new ApiError(401, "Invalid language"));
 
     const container = await pool.acquire();
     if (!container) return res.status(500).json(new ApiError(500, 'Server busy'));
 
-    const host = path.join(process.cwd(), "tmp", "problems", problem_id.toString());
+    const SANDBOX_ROOT="/var/lib/coding-platform"
+    const host = path.join(SANDBOX_ROOT, "problems", problem_id.toString());
     await fs.mkdir(host, { recursive: true });
 
     const file_name = language === "java" ? getjavaname(code, extension) : `prog_${Date.now()}_${Math.floor(Math.random() * 10000)}_${newsol._id}.${extension}`;
@@ -44,7 +45,7 @@ const run_code = asyncHandler(async (req, res) => {
         if (!testcasespath || !expectedpath)
             throw new Error("Error getting the testcases");
 
-        const cont = `/usr/src/myapp/problems/${problem_id}`;
+        const cont = `/usr/src/sandbox/problems/${problem_id}`;
         const sub_fold = `${cont}/${newsol._id}`;
         const contCodeFile = `${sub_fold}/${file_name}`;
         const contOutputFile = `${sub_fold}/output.txt`;
@@ -58,33 +59,44 @@ const run_code = asyncHandler(async (req, res) => {
         ]);
 
         const cmd = getdoc_com(language, contCodeFile, sub_fold, contTestFile, contOutputFile);
-        const dockerCmd = `docker exec ${container} sh -c "/usr/bin/time -v timeout ${problem.time_limit + 1}s ${cmd}"`;
+        console.log("COMPILE CMD:", cmd.compile);
+        console.log("CODE FILE:", contCodeFile);
+        console.log("SUB FOLDER:", sub_fold);
 
-        let stdout = "", stderr = "";
-        try {
-            const result = await execPromise(dockerCmd);
-            stdout = result.stdout;
-            stderr = result.stderr;
-        } catch (error) {
-            stdout = error.stdout || "";
-            stderr = error.stderr || "";
-            if (error.killed || error.signal === "SIGTERM" || error.code === 124) {
-                newsol.state = "Time Limit Exceeded";
+        if(!cmd&&language!="python"&&language!="javascript") throw new Error("Invalid extension");
+        if(cmd.compile) {
+            try{
+                await execPromise(`docker exec ${container} sh -c "${cmd.compile}"`,{timeout:8000});
+           }
+           catch(error){
+                newsol.state="Compilation Error";
+                newsol.stderr=error.stderr||error.message;
                 await newsol.save();
-                return res.status(200).json(new ApiResponse(200, "TLE encountered"));
-            }
+                return res.status(200).json(new ApiResponse(200,"Compilation Error"));
+           }
         }
-
-        await fs.rm(host, { recursive: true, force: true }).catch(() => {});
-        await fs.unlink(testcasespath).catch(() => {});
-        await fs.unlink(expectedpath).catch(() => {});
-
-        newsol.stdout = stdout;
-        newsol.stderr = stderr;
-        newsol.fexec_time = 0;
+        let t_stderr="";
+        const str=process.hrtime.bigint();
+        try{
+           const resp= await execPromise(`docker exec ${container} sh -c "/usr/bin/time -v timeout --foreground ${problem.time_limit}s ${cmd.run}"`,{timeout: (problem.time_limit+1)*1000});
+           t_stderr=resp.stderr||"";
+        }
+        catch(error){
+            t_stderr=error.stderr||"";
+            if(error.code===124){
+                newsol.state="Time Limit Exceeded";
+                await newsol.save();
+                return res.status(200).json(new ApiResponse(200,"Time Limit Exceeded"));
+            }
+            throw error;
+        }
+        const end=process.hrtime.bigint();
+        newsol.stdout = "";
+        newsol.stderr = t_stderr;
+        newsol.fexec_time_wall = Math.round(Number(end-str)/1e6);
         newsol.memory = 0;
-
-        const lines = stderr.split("\n");
+        newsol.fexec_time_cpu=0;
+        const lines = t_stderr.split("\n");
         const memLine = lines.find(l => l.includes("Maximum resident set size"));
         if (memLine) newsol.memory = parseInt(memLine.split(":")[1].trim(), 10) / 1024;
 
@@ -93,7 +105,7 @@ const run_code = asyncHandler(async (req, res) => {
         if (usrTime && sysTime) {
             const u = parseFloat(usrTime.split(":")[1].trim());
             const s = parseFloat(sysTime.split(":")[1].trim());
-            newsol.fexec_time = Math.round((u + s) * 1000);
+            newsol.fexec_time_cpu = Math.round((u + s) * 1000);
         }
 
         if (newsol.memory > problem.memory_limit) {
@@ -104,17 +116,17 @@ const run_code = asyncHandler(async (req, res) => {
 
         const resp = await checkResults(container, problem_id, newsol._id, problem.output_lines, problem.input_lines);
         if (!resp) throw new Error("Error fetching the cases");
+        await fs.rm(host, { recursive: true, force: true }).catch(() => {});
+        await fs.unlink(testcasespath).catch(() => {});
+        await fs.unlink(expectedpath).catch(() => {});
 
-        problem.submissions += 1;
         if (resp.every(r => r.passed)) {
-            problem.accepted += 1;
-            await problem.save();
             newsol.state = "Accepted";
             newsol.failed_cases = [];
             await newsol.save();
+            await Problem.findByIdAndUpdate(problem_id,{$inc: {accepted:1}});
             return res.status(200).json(new ApiResponse(200, "All cases passed"));
         } else {
-            await problem.save();
             newsol.state = "Wrong Answer";
             newsol.failed_cases = resp.filter(r => !r.passed);
             await newsol.save();
@@ -145,17 +157,37 @@ const getdoc_com = (language, codeFile, sub_fold, inputFile, outputFile) => {
     const execFile = `${sub_fold}/program`;
     switch (language) {
         case "c":
-            return `gcc ${codeFile} -o ${execFile} && chmod +x ${execFile} && ${execFile} < ${inputFile} > ${outputFile}`;
+            return {
+                compile: `gcc ${codeFile} -O2 -o ${execFile}`,
+                run: `${execFile} < ${inputFile} > ${outputFile}`
+            };
+
         case "cpp":
-            return `g++ ${codeFile} -o ${execFile} -O2 -std=c++17 && chmod +x ${execFile} && ${execFile} < ${inputFile} > ${outputFile}`;
+            return {
+                compile: `g++ ${codeFile} -O2 -std=c++17 -o ${execFile}`,
+                run: `${execFile} < ${inputFile} > ${outputFile}`
+            };
+
         case "java": {
             const classname = codeFile.split("/").pop().replace(".java", "");
-            return `javac ${codeFile} && cat ${inputFile} | java -cp ${sub_fold} ${classname} > ${outputFile}`;
+            return {
+                compile: `javac ${codeFile}`,
+                run: `java -cp ${sub_fold} ${classname} < ${inputFile} > ${outputFile}`
+            };
         }
+
         case "python":
-            return `cat ${inputFile} | python3 ${codeFile} > ${outputFile}`;
+            return {
+                compile: null,
+                run: `python3 ${codeFile} < ${inputFile} > ${outputFile}`
+            };
+
         case "javascript":
-            return `cat ${inputFile} | node ${codeFile} > ${outputFile}`;
+            return {
+                compile: null,
+                run: `node ${codeFile} < ${inputFile} > ${outputFile}`
+            };
+
         default:
             return null;
     }
@@ -182,7 +214,7 @@ const downloadfile = async (url, dest) => {
 };
 
 const checkResults = async (container, problem_id, submit_id, output_lines, input_lines) => {
-    const base = `/usr/src/myapp/problems/${problem_id}`;
+    const base = `/usr/src/sandbox/problems/${problem_id}`;
     const expectedFile = `${base}/expected.txt`;
     const outputFile = `${base}/${submit_id}/output.txt`;
     const testcaseFile = `${base}/testcases.txt`;

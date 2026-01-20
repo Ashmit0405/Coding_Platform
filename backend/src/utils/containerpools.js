@@ -14,7 +14,8 @@ class ContainersPool {
     }
 
     async init() {
-        for (const name of this.pool) {
+        for (let i = 0; i < this.size; i++) {
+            const name = `${this.language}_worker${i}`;
             await execAsync(`docker rm -f ${name}`).catch(() => {});
         }
         this.pool = [];
@@ -23,8 +24,8 @@ class ContainersPool {
             const name = `${this.language}_worker${i}`;
             await execAsync(
                 `docker run -dit --name ${name} \
-                 -v ${process.cwd()}/public:/usr/src/myapp \
-                 -w /usr/src/myapp ${this.image} sleep infinity`
+                 -v /var/lib/coding-platform:/usr/src/sandbox \
+                 -w /usr/src/sandbox ${this.image} sleep infinity`
             );
             this.pool.push(name);
         }

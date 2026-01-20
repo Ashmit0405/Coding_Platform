@@ -31,7 +31,8 @@ const codeschema = new Schema({
         ref: "User",
         required: true
     },
-    fexec_time: { type: Number },
+    fexec_time_wall: { type: Number },
+    fexec_time_cpu: {type: Number },
     memory: { type: Number },
     stdout: { type: String },
     stderr: { type: String },

@@ -62,11 +62,13 @@ const login = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessandRefreshToken(user._id);
     const options = {
         httpOnly: true,
-        secure: true
-    }
+        secure: true,
+        sameSite: "none",
+        domain: "codingplatform.me",
+        path: "/"
+    };
     return res.status(200).cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options).json(new ApiResponse(200, { user: user, accessToken, refreshToken }, "User Logged in successfully"));
 })
-
 const changePassword = asyncHandler(async (req, res) => {
     const { old_password, new_password } = req.body;
     const user_id = req.user?._id;
@@ -88,7 +90,10 @@ const logout = asyncHandler(async (req, res) => {
     });
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: "none",
+        domain: "codingplatform.me",
+        path: "/"
     };
     res.status(200).clearCookie("accessToken", options).clearCookie("refreshToken", options).json(new ApiResponse(200, "Logged Out Successfully"));
 })
@@ -168,17 +173,18 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+    const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        domain: "codingplatform.me",
+        path: "/"
     };
 
     return res
       .status(200)
-      .cookie("refreshToken", refreshToken, cookieOptions)
-      .cookie("accessToken",accessToken,cookieOptions)
+      .cookie("refreshToken", refreshToken,options)
+      .cookie("accessToken",accessToken,options)
       .json(new ApiResponse(200, { user, accessToken }, "Access token refreshed successfully"));
   } catch (error) {
     return res.status(401).json(new ApiError(401, "Error refreshing the access token"));
